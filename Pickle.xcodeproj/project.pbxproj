@@ -1,0 +1,359 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		489803F02C1896B658B0DB4B /* ScreenshotLocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67A7671EAD472442703B36E5 /* ScreenshotLocationManager.swift */; };
+		5BC8F0CEC2E7F0E7CC5897F1 /* DirectoryWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = A95E61B4E27793C88D369C39 /* DirectoryWatcher.swift */; };
+		79F13998C25A724FFECD6281 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466965AF2013332E81FCE09B /* MenuBarView.swift */; };
+		81725C4546A28C00B38CBACA /* NotificationSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEF855A4EACDC0CC01F7F85F /* NotificationSender.swift */; };
+		85ABF5A38C53AB12797A37DF /* PickleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534516AA342599C25AD7E3D6 /* PickleApp.swift */; };
+		8B3A205130BF927E10CABB63 /* ScreenshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D14BE45CE3D6843594B9F5D /* ScreenshotStore.swift */; };
+		91D1711FFCCD95774BDD6B88 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66172908FD6DC2DA511451EF /* SettingsView.swift */; };
+		A2A04F146B667DF64B786C8B /* QuickLookPreviewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C7EB57F8E4716774F1C6045 /* QuickLookPreviewController.swift */; };
+		D3B27AEC7A13614BC041A8FD /* ScreenshotFolderResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5048F7DFA271A533E60C6A9 /* ScreenshotFolderResolver.swift */; };
+		E93934ABDE50C2D6A2141AFB /* ScreenshotLocationPromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D517B04C5636C890921DB20 /* ScreenshotLocationPromptView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		1D517B04C5636C890921DB20 /* ScreenshotLocationPromptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotLocationPromptView.swift; sourceTree = "<group>"; };
+		466965AF2013332E81FCE09B /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
+		534516AA342599C25AD7E3D6 /* PickleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickleApp.swift; sourceTree = "<group>"; };
+		5E36B97967045314E2980941 /* Pickle.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Pickle.entitlements; sourceTree = "<group>"; };
+		66172908FD6DC2DA511451EF /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		67A7671EAD472442703B36E5 /* ScreenshotLocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotLocationManager.swift; sourceTree = "<group>"; };
+		8D14BE45CE3D6843594B9F5D /* ScreenshotStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotStore.swift; sourceTree = "<group>"; };
+		9120C5037B894B16B10999A0 /* Pickle.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pickle.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9C7EB57F8E4716774F1C6045 /* QuickLookPreviewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickLookPreviewController.swift; sourceTree = "<group>"; };
+		A95E61B4E27793C88D369C39 /* DirectoryWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryWatcher.swift; sourceTree = "<group>"; };
+		B5048F7DFA271A533E60C6A9 /* ScreenshotFolderResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotFolderResolver.swift; sourceTree = "<group>"; };
+		BC0CCDB99D7EE6F281F2B83F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		CEF855A4EACDC0CC01F7F85F /* NotificationSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSender.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		1A8E23A5AF5095EB29BE7FA7 /* Preview */ = {
+			isa = PBXGroup;
+			children = (
+				9C7EB57F8E4716774F1C6045 /* QuickLookPreviewController.swift */,
+			);
+			path = Preview;
+			sourceTree = "<group>";
+		};
+		1DA2375101ECF45FDA56FC46 = {
+			isa = PBXGroup;
+			children = (
+				81A05468F95BD2CD70DB209A /* Sources */,
+				2AF6FE913AE22F049812DAD4 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		288D42790E3C17FEF8519E6F /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				8D14BE45CE3D6843594B9F5D /* ScreenshotStore.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		2AF6FE913AE22F049812DAD4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9120C5037B894B16B10999A0 /* Pickle.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6E9BADB6801229EA75576902 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A95E61B4E27793C88D369C39 /* DirectoryWatcher.swift */,
+				CEF855A4EACDC0CC01F7F85F /* NotificationSender.swift */,
+				B5048F7DFA271A533E60C6A9 /* ScreenshotFolderResolver.swift */,
+				67A7671EAD472442703B36E5 /* ScreenshotLocationManager.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		81A05468F95BD2CD70DB209A /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				BC0CCDB99D7EE6F281F2B83F /* Info.plist */,
+				5E36B97967045314E2980941 /* Pickle.entitlements */,
+				534516AA342599C25AD7E3D6 /* PickleApp.swift */,
+				288D42790E3C17FEF8519E6F /* Model */,
+				1A8E23A5AF5095EB29BE7FA7 /* Preview */,
+				6E9BADB6801229EA75576902 /* Services */,
+				DC533D1A7C8734DE504F2546 /* Views */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		DC533D1A7C8734DE504F2546 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				466965AF2013332E81FCE09B /* MenuBarView.swift */,
+				1D517B04C5636C890921DB20 /* ScreenshotLocationPromptView.swift */,
+				66172908FD6DC2DA511451EF /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		253AD4C7EB308D46442FB3F8 /* Pickle */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 19616F8D2228D380F532A121 /* Build configuration list for PBXNativeTarget "Pickle" */;
+			buildPhases = (
+				E63DE567D166EDB9A1AE3A5E /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Pickle;
+			packageProductDependencies = (
+			);
+			productName = Pickle;
+			productReference = 9120C5037B894B16B10999A0 /* Pickle.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		3FB8EC58C02ECBE1D2074A2B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					253AD4C7EB308D46442FB3F8 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 858CF7F293620E860635766B /* Build configuration list for PBXProject "Pickle" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 1DA2375101ECF45FDA56FC46;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				253AD4C7EB308D46442FB3F8 /* Pickle */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E63DE567D166EDB9A1AE3A5E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5BC8F0CEC2E7F0E7CC5897F1 /* DirectoryWatcher.swift in Sources */,
+				79F13998C25A724FFECD6281 /* MenuBarView.swift in Sources */,
+				81725C4546A28C00B38CBACA /* NotificationSender.swift in Sources */,
+				85ABF5A38C53AB12797A37DF /* PickleApp.swift in Sources */,
+				A2A04F146B667DF64B786C8B /* QuickLookPreviewController.swift in Sources */,
+				D3B27AEC7A13614BC041A8FD /* ScreenshotFolderResolver.swift in Sources */,
+				489803F02C1896B658B0DB4B /* ScreenshotLocationManager.swift in Sources */,
+				E93934ABDE50C2D6A2141AFB /* ScreenshotLocationPromptView.swift in Sources */,
+				8B3A205130BF927E10CABB63 /* ScreenshotStore.swift in Sources */,
+				91D1711FFCCD95774BDD6B88 /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		18398DCFA98DB8156EFA1F3C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		3954CBBA58120A29937EF179 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Sources/Pickle.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Sources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.test.Pickle;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		4680DBC6076EE40DA9F25EED /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Sources/Pickle.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Sources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.test.Pickle;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		663E9858642D4A5A832EB98B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		19616F8D2228D380F532A121 /* Build configuration list for PBXNativeTarget "Pickle" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4680DBC6076EE40DA9F25EED /* Debug */,
+				3954CBBA58120A29937EF179 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		858CF7F293620E860635766B /* Build configuration list for PBXProject "Pickle" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				663E9858642D4A5A832EB98B /* Debug */,
+				18398DCFA98DB8156EFA1F3C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 3FB8EC58C02ECBE1D2074A2B /* Project object */;
+}
