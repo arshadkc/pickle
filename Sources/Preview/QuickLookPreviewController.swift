@@ -26,8 +26,25 @@ final class QuickLookPreviewController: NSObject, QLPreviewPanelDataSource, QLPr
         // Activate the app first to ensure it's in the foreground
         NSApp.activate(ignoringOtherApps: true)
         
-        // Show the panel
+        // Show the panel first
         panel.makeKeyAndOrderFront(nil)
+        
+        // Force the panel to be on top with multiple approaches
+        DispatchQueue.main.async {
+            // Try different window level approaches
+            panel.level = .screenSaver
+            panel.orderFrontRegardless()
+            
+            // Also try making it key and front
+            panel.makeKeyAndOrderFront(nil)
+            
+            // Additional delay to ensure it stays on top
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                panel.level = .screenSaver
+                panel.orderFrontRegardless()
+                panel.makeKeyAndOrderFront(nil)
+            }
+        }
     }
 
     /// Convenience for a single file

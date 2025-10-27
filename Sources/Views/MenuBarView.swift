@@ -60,6 +60,7 @@ struct ShotTile: View {
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .transition(.opacity)
                         .allowsHitTesting(false)
+                        .scaleEffect(isHovered ? 1.05 : 1.0)
                     
                     VStack {
                         Spacer()
@@ -91,6 +92,7 @@ struct ShotTile: View {
                     .padding(.bottom, 8)
                     .frame(height: 90, alignment: .bottom)
                     .transition(.opacity)
+                    .scaleEffect(isHovered ? 1.05 : 1.0)
                 }
             }
             .overlay {
