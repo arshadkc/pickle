@@ -13,6 +13,9 @@ struct ShotTile: View {
     @State private var showError = false
     @State private var errorMessage = ""
     @State private var showCopyConfirmation = false
+    @State private var showRedactionToast = false
+    @State private var redactionToastMessage = ""
+    @State private var isRedacting = false
     @FocusState private var isTextFieldFocused: Bool
     
     init(item: ScreenshotItem) {
@@ -108,6 +111,46 @@ struct ShotTile: View {
                     .frame(height: 90)
                     .transition(.opacity.combined(with: .scale(scale: 0.8)))
                 }
+                
+                // Redaction toast message
+                if showRedactionToast {
+                    VStack {
+                        Spacer()
+                        Text(redactionToastMessage)
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.black.opacity(0.3))
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                        Spacer()
+                        Spacer()
+                    }
+                    .frame(height: 90)
+                    .transition(.opacity.combined(with: .scale(scale: 0.8)))
+                }
+                
+                // Redaction loading indicator
+                if isRedacting {
+                    VStack {
+                        Spacer()
+                        HStack {
+                            ProgressView()
+                                .scaleEffect(0.6)
+                            Text("Redacting...")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.black.opacity(0.3))
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                        Spacer()
+                        Spacer()
+                    }
+                    .frame(height: 90)
+                    .transition(.opacity.combined(with: .scale(scale: 0.8)))
+                }
             }
             
                 VStack(spacing: 2) {
@@ -193,6 +236,7 @@ struct ShotTile: View {
         }
         .contextMenu {
             Button("Copy Image") {
+                print("📋 COPY IMAGE BUTTON CLICKED!")
                 copyImageToClipboard()
             }
             
@@ -205,6 +249,10 @@ struct ShotTile: View {
             }
             
             Divider()
+            
+            Button("Redact & Save (Auto)") {
+                redactAndSave()
+            }
             
             Button("Share...") {
                 shareImage()
@@ -285,6 +333,61 @@ struct ShotTile: View {
             // Keep the anchor view alive longer to prevent the share sheet from disappearing
             DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) {
                 tempView.removeFromSuperview()
+            }
+        }
+    }
+    
+    private func redactAndSave() {
+        NSLog("🎯 REDACT BUTTON CLICKED!")
+        print("🎯 REDACT BUTTON CLICKED!")
+        isRedacting = true
+        
+        RedactionService.shared.redactAndSave(imageURL: item.url) { result in
+            DispatchQueue.main.async {
+                isRedacting = false
+                
+                switch result {
+                case .success(let outputURL):
+                    // Add the new file to the store immediately for instant UI update
+                    ScreenshotStore.shared.insertImmediately(outputURL)
+                    
+                    // Determine appropriate toast message based on the outcome
+                    let message = determineToastMessage(for: outputURL)
+                    showRedactionToast(message: message)
+                    
+                case .failure(let error):
+                    // Show error toast
+                    showRedactionToast(message: "Couldn't save redacted copy")
+                    print("Redaction failed: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    private func determineToastMessage(for outputURL: URL) -> String {
+        let filename = outputURL.lastPathComponent
+        
+        // Check if it's a timeout fallback (unredacted copy)
+        if filename.contains("redact-") && !filename.contains("redact-redact-") {
+            // This is a normal redacted copy
+            return "🔒 Redacted copy saved"
+        } else {
+            // This might be a timeout fallback or no-hit case
+            // For now, we'll use a generic message since we can't easily determine
+            // the specific case from just the URL. In a real implementation,
+            // we might pass additional context from the service.
+            return "🔒 Copy saved"
+        }
+    }
+    
+    private func showRedactionToast(message: String) {
+        redactionToastMessage = message
+        showRedactionToast = true
+        
+        // Auto-dismiss after 2 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                showRedactionToast = false
             }
         }
     }

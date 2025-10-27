@@ -66,6 +66,24 @@ class ScreenshotStore: ObservableObject {
         }
     }
     
+    /// Immediately inserts a new screenshot item into the store for instant UI updates
+    func insertImmediately(_ url: URL) {
+        guard let date = url.creationDate else { return }
+        
+        let newItem = ScreenshotItem(url: url, date: date)
+        
+        // Check if item already exists
+        if !items.contains(newItem) {
+            DispatchQueue.main.async {
+                // Insert at the beginning (newest first)
+                self.items.insert(newItem, at: 0)
+                
+                // Sort by date (newest first) and trim to 50 items
+                self.items = Array(self.items.sorted { $0.date > $1.date }.prefix(50))
+            }
+        }
+    }
+    
     private func processPendingUpdates() {
         guard !pendingUpdates.isEmpty else { return }
         

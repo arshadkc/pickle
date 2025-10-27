@@ -234,6 +234,8 @@ struct SettingsView: View {
     }
 }
 
+#if DEBUG && canImport(SwiftUI) && ENABLE_PREVIEWS
 #Preview {
     SettingsView(isPresented: .constant(true))
 }
+#endif

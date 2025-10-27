@@ -218,6 +218,7 @@ struct ScreenshotLocationPromptView: View {
     }
 }
 
+#if DEBUG && canImport(SwiftUI) && ENABLE_PREVIEWS
 #Preview {
     VStack {
         ScreenshotLocationPromptView(
@@ -228,3 +229,4 @@ struct ScreenshotLocationPromptView: View {
     }
     .frame(width: 500, height: 300)
 }
+#endif
