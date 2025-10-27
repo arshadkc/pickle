@@ -19,6 +19,8 @@ public enum Kind {
     case email
     case phone
     case url
+    case address
+    case transit
     case personalName
     case organizationName
     case customTerm(String)
@@ -83,7 +85,7 @@ public enum SensitivityDetector {
     private static func detectDataTypes(in line: String) -> [Hit] {
         var hits: [Hit] = []
         
-        guard let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.phoneNumber.rawValue | NSTextCheckingResult.CheckingType.link.rawValue) else {
+        guard let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.phoneNumber.rawValue | NSTextCheckingResult.CheckingType.link.rawValue | NSTextCheckingResult.CheckingType.address.rawValue | NSTextCheckingResult.CheckingType.transitInformation.rawValue) else {
             return hits
         }
         
@@ -104,6 +106,10 @@ public enum SensitivityDetector {
                 } else {
                     kind = .url
                 }
+            case .address:
+                kind = .address
+            case .transitInformation:
+                kind = .transit
             default:
                 continue
             }
@@ -125,9 +131,65 @@ public enum SensitivityDetector {
     // MARK: - Numeric Sequence Fallback
 
     /// Detects long digit sequences (7+ digits) that may represent phone numbers
+    /// Excludes common date patterns like DDMMYYYY (8 digits)
     private static func detectNumericSequences(in line: String) -> [Hit] {
-        let pattern = "(?<!\\d)\\d{7,}(?!\\d)"
-        return detectWithRegex(pattern: pattern, in: line, kind: .phone)
+        var hits: [Hit] = []
+        
+        // First, find all 7+ digit sequences
+        let allSequencesPattern = "(?<!\\d)\\d{7,}(?!\\d)"
+        let allMatches = detectWithRegex(pattern: allSequencesPattern, in: line, kind: .phone)
+        
+        for hit in allMatches {
+            let text = String(line[hit.textRange])
+            
+            // Skip if it looks like a date (8 digits in DDMMYYYY format)
+            if text.count == 8 && isLikelyDate(text) {
+                continue
+            }
+            
+            // Skip if it's 7 digits but looks like a date (DDMMYYY format)
+            if text.count == 7 && isLikelyShortDate(text) {
+                continue
+            }
+            
+            hits.append(hit)
+        }
+        
+        return hits
+    }
+    
+    /// Checks if an 8-digit string looks like a date in DDMMYYYY or DDMMYYY format
+    private static func isLikelyDate(_ text: String) -> Bool {
+        guard text.count == 8 else { return false }
+        
+        let day = Int(String(text.prefix(2))) ?? 0
+        let month = Int(String(text.dropFirst(2).prefix(2))) ?? 0
+        let year = Int(String(text.suffix(4))) ?? 0
+        let year3 = Int(String(text.suffix(3))) ?? 0
+        
+        // Check DDMMYYYY format (4-digit year)
+        if year >= 1900 && year <= 2100 {
+            return day >= 1 && day <= 31 && month >= 1 && month <= 12
+        }
+        
+        // Check DDMMYYY format (3-digit year)
+        if year3 >= 100 && year3 <= 999 {
+            return day >= 1 && day <= 31 && month >= 1 && month <= 12
+        }
+        
+        return false
+    }
+    
+    /// Checks if a 7-digit string looks like a date in DDMMYYY format
+    private static func isLikelyShortDate(_ text: String) -> Bool {
+        guard text.count == 7, let day = Int(String(text.prefix(2))),
+              let month = Int(String(text.dropFirst(2).prefix(2))),
+              let year = Int(String(text.suffix(3))) else {
+            return false
+        }
+        
+        // Basic validation: day 1-31, month 1-12, year 100-999
+        return day >= 1 && day <= 31 && month >= 1 && month <= 12 && year >= 100 && year <= 999
     }
 
     // MARK: - Name Detection

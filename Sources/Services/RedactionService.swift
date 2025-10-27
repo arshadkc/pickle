@@ -55,6 +55,120 @@ class RedactionService {
     
     private init() {}
     
+    /// Performs redaction directly on the original image (overwrites it)
+    /// - Parameters:
+    ///   - imageURL: URL of the original image to redact
+    ///   - completion: Completion handler with result
+    func redactInPlace(imageURL: URL, completion: @escaping (Result<URL, RedactionServiceError>) -> Void) {
+        NSLog("🚀 IN-PLACE REDACTION STARTED for: \(imageURL.lastPathComponent)")
+        print("🚀 IN-PLACE REDACTION STARTED for: \(imageURL.lastPathComponent)")
+        
+        let startTime = CFAbsoluteTimeGetCurrent()
+        var diagnostics = RedactionDiagnostics(
+            totalTime: 0, ocrTime: 0, detectionTime: 0, regionMergeTime: 0,
+            redactionTime: 0, saveTime: 0, lineCount: 0, hitCount: 0,
+            mergedRegionCount: 0, outputFormat: .unknown, outputPath: "",
+            wasDownscaled: false, wasTimedOut: false
+        )
+        
+        Task {
+            do {
+                // Step 1: Load and validate image
+                guard let originalImage = NSImage(contentsOf: imageURL) else {
+                    await MainActor.run {
+                        completion(.failure(.redactionFailed("Invalid image provided")))
+                    }
+                    return
+                }
+                
+                let originalFormat = detectImageFormat(from: imageURL)
+                diagnostics.outputFormat = originalFormat
+                
+                // Step 2: Check directory permissions
+                let parentDirectory = imageURL.deletingLastPathComponent()
+                guard FileManager.default.isWritableFile(atPath: parentDirectory.path) else {
+                    await MainActor.run {
+                        completion(.failure(.redactionFailed("Directory is read-only")))
+                    }
+                    return
+                }
+                
+                // Step 3: Memory safety - downscale large images
+                let (processedImage, wasDownscaled) = downscaleIfNeeded(originalImage)
+                diagnostics.wasDownscaled = wasDownscaled
+                
+                // Step 4: Timeout-protected redaction pipeline
+                let result = await withTimeout(RedactionConfig.maxPipelineTime) { [self] in
+                    await performRedactionPipeline(
+                        image: processedImage,
+                        originalFormat: originalFormat,
+                        diagnostics: &diagnostics
+                    )
+                }
+                
+                NSLog("🔍 WITH TIMEOUT RESULT: \(result != nil ? "SUCCESS" : "TIMEOUT")")
+                if let result = result {
+                    NSLog("🔍 PIPELINE RESULT: \(result)")
+                    // Pipeline completed successfully
+                    switch result {
+                    case .success(let (redactedImage, _, lineCount, hitCount, mergedRegionCount)):
+                        diagnostics.lineCount = lineCount
+                        diagnostics.hitCount = hitCount
+                        diagnostics.mergedRegionCount = mergedRegionCount
+                        
+                        // Step 5: Save directly to original file (overwrite)
+                        diagnostics.outputPath = imageURL.path
+                        NSLog("💾 SAVING REDACTED IMAGE to original file: \(imageURL.lastPathComponent)")
+                        
+                        let saveStartTime = CFAbsoluteTimeGetCurrent()
+                        try saveImage(redactedImage, to: imageURL, originalFormat: originalFormat)
+                        diagnostics.saveTime = CFAbsoluteTimeGetCurrent() - saveStartTime
+                        NSLog("✅ REDACTED IMAGE SAVED SUCCESSFULLY!")
+                        
+                        // Step 6: Validate saved file
+                        guard NSImage(contentsOf: imageURL) != nil else {
+                            await MainActor.run {
+                                completion(.failure(.redactionFailed("Saved file is invalid")))
+                            }
+                            return
+                        }
+                        
+                        diagnostics.totalTime = CFAbsoluteTimeGetCurrent() - startTime
+                        logDiagnostics(diagnostics)
+                        
+                        NSLog("🎉 IN-PLACE REDACTION PIPELINE COMPLETED SUCCESSFULLY!")
+                        await MainActor.run {
+                            completion(.success(imageURL))
+                        }
+                        
+                    case .failure(let error):
+                        await MainActor.run {
+                            completion(.failure(error))
+                        }
+                    }
+                } else {
+                    // Timeout fallback: no changes to original file
+                    diagnostics.wasTimedOut = true
+                    diagnostics.totalTime = CFAbsoluteTimeGetCurrent() - startTime
+                    
+                    logDiagnostics(diagnostics)
+                    
+                    await MainActor.run {
+                        completion(.failure(.redactionFailed("Redaction timed out")))
+                    }
+                }
+                
+            } catch {
+                diagnostics.totalTime = CFAbsoluteTimeGetCurrent() - startTime
+                logDiagnostics(diagnostics)
+                
+                await MainActor.run {
+                    completion(.failure(.redactionFailed(error.localizedDescription)))
+                }
+            }
+        }
+    }
+    
     /// Performs automatic redaction on an image and saves it with timeout and safety guardrails
     /// - Parameters:
     ///   - imageURL: URL of the original image
@@ -371,6 +485,10 @@ class RedactionService {
             return "Phone"
         case .url:
             return "URL"
+        case .address:
+            return "Address"
+        case .transit:
+            return "Transit"
         case .personalName:
             return "Personal Name"
         case .organizationName:

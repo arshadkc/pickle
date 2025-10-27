@@ -250,8 +250,14 @@ struct ShotTile: View {
             
             Divider()
             
-            Button("Redact & Save (Auto)") {
-                redactAndSave()
+            Menu("Redact") {
+                Button("Redact this image") {
+                    redactInPlace()
+                }
+                
+                Button("Redact a copy") {
+                    redactAndSave()
+                }
             }
             
             Button("Share...") {
@@ -359,6 +365,30 @@ struct ShotTile: View {
                     // Show error toast
                     showRedactionToast(message: "Couldn't save redacted copy")
                     print("Redaction failed: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    private func redactInPlace() {
+        NSLog("🎯 REDACT IN-PLACE BUTTON CLICKED!")
+        print("🎯 REDACT IN-PLACE BUTTON CLICKED!")
+        isRedacting = true
+        
+        RedactionService.shared.redactInPlace(imageURL: item.url) { result in
+            DispatchQueue.main.async {
+                isRedacting = false
+                
+                switch result {
+                case .success:
+                    // Refresh the image to show the redacted version
+                    loadImage()
+                    showRedactionToast(message: "🔒 Image redacted")
+                    
+                case .failure(let error):
+                    // Show error toast
+                    showRedactionToast(message: "Couldn't redact image")
+                    print("In-place redaction failed: \(error.localizedDescription)")
                 }
             }
         }
