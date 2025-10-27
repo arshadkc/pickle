@@ -87,11 +87,4 @@ final class QuickLookPreviewController: NSObject, QLPreviewPanelDataSource, QLPr
         }
         return false
     }
-    
-    func previewPanelWillClose(_ panel: QLPreviewPanel!) {
-        // Ensure the app stays active when the preview panel closes
-        DispatchQueue.main.async {
-            NSApp.activate(ignoringOtherApps: true)
-        }
-    }
 }
