@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		26558C2C6DBBE818D5F214DF /* RegionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22BB3C1DDAEBF71B36223E1D /* RegionBuilder.swift */; };
 		2EF111B8CDDD7BF0208BB047 /* SensitivityDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3E9054364A1332552CBB7F /* SensitivityDetector.swift */; };
+		362F3CF7A70BE1AC02B75D04 /* RedactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 944C76F6691E559C153A4DAC /* RedactionTests.swift */; };
 		489803F02C1896B658B0DB4B /* ScreenshotLocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67A7671EAD472442703B36E5 /* ScreenshotLocationManager.swift */; };
 		5BC8F0CEC2E7F0E7CC5897F1 /* DirectoryWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = A95E61B4E27793C88D369C39 /* DirectoryWatcher.swift */; };
 		69234BC08CC54DADD3945D22 /* TextRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C04676A67F105943C579F057 /* TextRecognizer.swift */; };
@@ -17,13 +18,23 @@
 		85ABF5A38C53AB12797A37DF /* PickleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534516AA342599C25AD7E3D6 /* PickleApp.swift */; };
 		8B3A205130BF927E10CABB63 /* ScreenshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D14BE45CE3D6843594B9F5D /* ScreenshotStore.swift */; };
 		91D1711FFCCD95774BDD6B88 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66172908FD6DC2DA511451EF /* SettingsView.swift */; };
+		9E215C2DA47C997B075C8081 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E077091C50CEA3FF3B5ADE68 /* Assets.xcassets */; };
 		A2A04F146B667DF64B786C8B /* QuickLookPreviewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C7EB57F8E4716774F1C6045 /* QuickLookPreviewController.swift */; };
 		A33C24DF1A4B4C3B0EFC9294 /* ImageRedactor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1991618B6421D2784953FADE /* ImageRedactor.swift */; };
 		BBD1767610179124FE4B1AAA /* RedactionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 900134AA9619665D552EC159 /* RedactionService.swift */; };
 		D3B27AEC7A13614BC041A8FD /* ScreenshotFolderResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5048F7DFA271A533E60C6A9 /* ScreenshotFolderResolver.swift */; };
-		E70A2E46632F0D36F59D2409 /* RedactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63DD63B654F5099540B9E5E4 /* RedactionTests.swift */; };
 		E93934ABDE50C2D6A2141AFB /* ScreenshotLocationPromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D517B04C5636C890921DB20 /* ScreenshotLocationPromptView.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		388C903AD436B35F92955C81 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3FB8EC58C02ECBE1D2074A2B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 253AD4C7EB308D46442FB3F8;
+			remoteInfo = Pickle;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		1991618B6421D2784953FADE /* ImageRedactor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRedactor.swift; sourceTree = "<group>"; };
@@ -32,22 +43,33 @@
 		466965AF2013332E81FCE09B /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
 		534516AA342599C25AD7E3D6 /* PickleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickleApp.swift; sourceTree = "<group>"; };
 		5E36B97967045314E2980941 /* Pickle.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Pickle.entitlements; sourceTree = "<group>"; };
-		63DD63B654F5099540B9E5E4 /* RedactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedactionTests.swift; sourceTree = "<group>"; };
 		66172908FD6DC2DA511451EF /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		67A7671EAD472442703B36E5 /* ScreenshotLocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotLocationManager.swift; sourceTree = "<group>"; };
 		8D14BE45CE3D6843594B9F5D /* ScreenshotStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotStore.swift; sourceTree = "<group>"; };
 		900134AA9619665D552EC159 /* RedactionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedactionService.swift; sourceTree = "<group>"; };
 		9120C5037B894B16B10999A0 /* Pickle.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pickle.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		944C76F6691E559C153A4DAC /* RedactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedactionTests.swift; sourceTree = "<group>"; };
 		9C7EB57F8E4716774F1C6045 /* QuickLookPreviewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickLookPreviewController.swift; sourceTree = "<group>"; };
+		9FADF69DC42C78EA8EFDEE5E /* PickleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PickleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A95E61B4E27793C88D369C39 /* DirectoryWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryWatcher.swift; sourceTree = "<group>"; };
 		B5048F7DFA271A533E60C6A9 /* ScreenshotFolderResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotFolderResolver.swift; sourceTree = "<group>"; };
 		BC0CCDB99D7EE6F281F2B83F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		C04676A67F105943C579F057 /* TextRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextRecognizer.swift; sourceTree = "<group>"; };
 		CEF855A4EACDC0CC01F7F85F /* NotificationSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSender.swift; sourceTree = "<group>"; };
+		E077091C50CEA3FF3B5ADE68 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EE3E9054364A1332552CBB7F /* SensitivityDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensitivityDetector.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		03FB40DACD00D06ED27FD89C /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				944C76F6691E559C153A4DAC /* RedactionTests.swift */,
+			);
+			name = Tests;
+			path = Sources/Tests;
+			sourceTree = "<group>";
+		};
 		1A8E23A5AF5095EB29BE7FA7 /* Preview */ = {
 			isa = PBXGroup;
 			children = (
@@ -60,6 +82,7 @@
 			isa = PBXGroup;
 			children = (
 				81A05468F95BD2CD70DB209A /* Sources */,
+				03FB40DACD00D06ED27FD89C /* Tests */,
 				2AF6FE913AE22F049812DAD4 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -76,6 +99,7 @@
 			isa = PBXGroup;
 			children = (
 				9120C5037B894B16B10999A0 /* Pickle.app */,
+				9FADF69DC42C78EA8EFDEE5E /* PickleTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -105,14 +129,6 @@
 			path = OCR;
 			sourceTree = "<group>";
 		};
-		5A5422525A2C050FD5911CA3 /* Tests */ = {
-			isa = PBXGroup;
-			children = (
-				63DD63B654F5099540B9E5E4 /* RedactionTests.swift */,
-			);
-			path = Tests;
-			sourceTree = "<group>";
-		};
 		6E9BADB6801229EA75576902 /* Services */ = {
 			isa = PBXGroup;
 			children = (
@@ -128,6 +144,7 @@
 		81A05468F95BD2CD70DB209A /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				E077091C50CEA3FF3B5ADE68 /* Assets.xcassets */,
 				BC0CCDB99D7EE6F281F2B83F /* Info.plist */,
 				5E36B97967045314E2980941 /* Pickle.entitlements */,
 				534516AA342599C25AD7E3D6 /* PickleApp.swift */,
@@ -135,7 +152,6 @@
 				1A8E23A5AF5095EB29BE7FA7 /* Preview */,
 				A2DFC1FB15F12DAFD9AF20CF /* Redaction */,
 				6E9BADB6801229EA75576902 /* Services */,
-				5A5422525A2C050FD5911CA3 /* Tests */,
 				DC533D1A7C8734DE504F2546 /* Views */,
 			);
 			path = Sources;
@@ -169,6 +185,7 @@
 			buildConfigurationList = 19616F8D2228D380F532A121 /* Build configuration list for PBXNativeTarget "Pickle" */;
 			buildPhases = (
 				E63DE567D166EDB9A1AE3A5E /* Sources */,
+				C846691DAA6416E7A97D7A7E /* Resources */,
 			);
 			buildRules = (
 			);
@@ -180,6 +197,24 @@
 			productName = Pickle;
 			productReference = 9120C5037B894B16B10999A0 /* Pickle.app */;
 			productType = "com.apple.product-type.application";
+		};
+		D11CB16B52875C93370F5938 /* PickleTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EAB6077902260AE373D07F85 /* Build configuration list for PBXNativeTarget "PickleTests" */;
+			buildPhases = (
+				67B675A5D922C587F503A0BF /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				FFD397DBBD63BBD8411008F2 /* PBXTargetDependency */,
+			);
+			name = PickleTests;
+			packageProductDependencies = (
+			);
+			productName = PickleTests;
+			productReference = 9FADF69DC42C78EA8EFDEE5E /* PickleTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -210,11 +245,31 @@
 			projectRoot = "";
 			targets = (
 				253AD4C7EB308D46442FB3F8 /* Pickle */,
+				D11CB16B52875C93370F5938 /* PickleTests */,
 			);
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		C846691DAA6416E7A97D7A7E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9E215C2DA47C997B075C8081 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
+		67B675A5D922C587F503A0BF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				362F3CF7A70BE1AC02B75D04 /* RedactionTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E63DE567D166EDB9A1AE3A5E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -226,7 +281,6 @@
 				85ABF5A38C53AB12797A37DF /* PickleApp.swift in Sources */,
 				A2A04F146B667DF64B786C8B /* QuickLookPreviewController.swift in Sources */,
 				BBD1767610179124FE4B1AAA /* RedactionService.swift in Sources */,
-				E70A2E46632F0D36F59D2409 /* RedactionTests.swift in Sources */,
 				26558C2C6DBBE818D5F214DF /* RegionBuilder.swift in Sources */,
 				D3B27AEC7A13614BC041A8FD /* ScreenshotFolderResolver.swift in Sources */,
 				489803F02C1896B658B0DB4B /* ScreenshotLocationManager.swift in Sources */,
@@ -239,6 +293,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		FFD397DBBD63BBD8411008F2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 253AD4C7EB308D46442FB3F8 /* Pickle */;
+			targetProxy = 388C903AD436B35F92955C81 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		18398DCFA98DB8156EFA1F3C /* Release */ = {
@@ -297,6 +359,24 @@
 			};
 			name = Release;
 		};
+		37CB2D3F58C24FD6D6F71780 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pickle.appTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Pickle.app/Contents/MacOS/Pickle";
+			};
+			name = Release;
+		};
 		3954CBBA58120A29937EF179 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -310,7 +390,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.test.Pickle;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pickle.app;
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -328,7 +408,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.test.Pickle;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pickle.app;
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -396,6 +476,24 @@
 			};
 			name = Debug;
 		};
+		FDBCFCDB08552FCB5749A358 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pickle.appTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Pickle.app/Contents/MacOS/Pickle";
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -413,6 +511,15 @@
 			buildConfigurations = (
 				663E9858642D4A5A832EB98B /* Debug */,
 				18398DCFA98DB8156EFA1F3C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		EAB6077902260AE373D07F85 /* Build configuration list for PBXNativeTarget "PickleTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FDBCFCDB08552FCB5749A358 /* Debug */,
+				37CB2D3F58C24FD6D6F71780 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

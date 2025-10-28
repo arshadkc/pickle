@@ -13,6 +13,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     }
     
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Set app icon
+        if let iconPath = Bundle.main.path(forResource: "AppIcon", ofType: "icns"),
+           let icon = NSImage(contentsOfFile: iconPath) {
+            NSApp.applicationIconImage = icon
+            
+            // Also try to set the menu bar icon
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                if let statusItem = NSApp.mainMenu?.items.first?.submenu?.items.first {
+                    statusItem.image = icon
+                }
+            }
+        }
+        
         // Set up notification center delegate
         UNUserNotificationCenter.current().delegate = self
         
@@ -140,7 +153,7 @@ struct PickleApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     var body: some Scene {
-        MenuBarExtra("Pickle", systemImage: "camera.on.rectangle") {
+        MenuBarExtra("PickleApp", image: "MenuBarIcon") {
             MenuBarView()
         }
         .menuBarExtraStyle(.window)

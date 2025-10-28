@@ -1,6 +1,33 @@
 import Foundation
 import NaturalLanguage
 
+// MARK: - Date/Time Guard System
+
+/// Precompiled regex patterns for fast date/time detection
+enum DateGuards {
+    // e.g., 2025-10-28 or 28-10-2025 / separators: - / .
+    static let ymd = try! NSRegularExpression(pattern: #"(?<!\d)(?:19|20)\d{2}[-/.](?:0?[1-9]|1[0-2])[-/.](?:0?[1-9]|[12]\d|3[01])(?!\d)"#)
+    static let dmy = try! NSRegularExpression(pattern: #"(?<!\d)(?:0?[1-9]|[12]\d|3[01])[-/.](?:0?[1-9]|1[0-2])[-/.](?:19|20)\d{2}(?!\d)"#)
+    static let mdy = try! NSRegularExpression(pattern: #"(?<!\d)(?:0?[1-9]|1[0-2])[-/.](?:0?[1-9]|[12]\d|3[01])[-/.](?:19|20)\d{2}(?!\d)"#)
+    static let compactYMD = try! NSRegularExpression(pattern: #"(?<!\d)(?:19|20)\d{6}(?!\d)"#) // YYYYMMDD
+    static let time = try! NSRegularExpression(pattern: #"(?<!\d)(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?(?:\s?(?:AM|PM))?(?!\d)"#, options: [.caseInsensitive])
+    static let iso8601 = try! NSRegularExpression(pattern: #"(?:19|20)\d{2}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+\-]\d{2}:\d{2})"#)
+    static let monthWords = try! NSRegularExpression(pattern: #"(?:\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec|January|February|March|April|June|July|August|September|October|November|December)\b\.?,?\s+\d{1,2}(?:st|nd|rd|th)?(?:,?\s+(?:19|20)\d{2})?)|(?:\b\d{1,2}(?:st|nd|rd|th)?\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec|January|February|March|April|June|July|August|September|October|November|December)\b\.?,?\s+(?:19|20)\d{2})"#, options: [.caseInsensitive])
+}
+
+/// Fast helper to check if a string looks like a date or time
+func looksLikeDateOrTime(_ s: String) -> Bool {
+    let range = NSRange(s.startIndex..<s.endIndex, in: s)
+    if DateGuards.ymd.firstMatch(in: s, options: [], range: range) != nil { return true }
+    if DateGuards.dmy.firstMatch(in: s, options: [], range: range) != nil { return true }
+    if DateGuards.mdy.firstMatch(in: s, options: [], range: range) != nil { return true }
+    if DateGuards.compactYMD.firstMatch(in: s, options: [], range: range) != nil { return true }
+    if DateGuards.iso8601.firstMatch(in: s, options: [], range: range) != nil { return true }
+    if DateGuards.time.firstMatch(in: s, options: [], range: range) != nil { return true }
+    if DateGuards.monthWords.firstMatch(in: s, options: [], range: range) != nil { return true }
+    return false
+}
+
 /// Represents a detected sensitive token with its location and type
 public struct Hit {
     public let textRange: Range<String.Index>
@@ -131,27 +158,34 @@ public enum SensitivityDetector {
     // MARK: - Numeric Sequence Fallback
 
     /// Detects long digit sequences (7+ digits) that may represent phone numbers
-    /// Excludes common date patterns like DDMMYYYY (8 digits)
+    /// Excludes common date patterns using comprehensive date guard
     private static func detectNumericSequences(in line: String) -> [Hit] {
         var hits: [Hit] = []
         
         // First, find all 7+ digit sequences
         let allSequencesPattern = "(?<!\\d)\\d{7,}(?!\\d)"
-        let allMatches = detectWithRegex(pattern: allSequencesPattern, in: line, kind: .phone)
+        let allMatches = detectWithRegex(pattern: allSequencesPattern, in: line, kind: .customTerm("Long Numeric ID"))
         
         for hit in allMatches {
             let text = String(line[hit.textRange])
             
-            // Skip if it looks like a date (8 digits in DDMMYYYY format)
-            if text.count == 8 && isLikelyDate(text) {
+            // Apply comprehensive date guard - skip if it looks like any date/time format
+            if looksLikeDateOrTime(text) {
                 continue
             }
             
-            // Skip if it's 7 digits but looks like a date (DDMMYYY format)
-            if text.count == 7 && isLikelyShortDate(text) {
-                continue
+            // Additional numeric heuristics for pure digit tokens
+            if text.allSatisfy({ $0.isNumber }) {
+                // If length == 8 and matches YYYYMMDD in a valid range → skip
+                if text.count == 8 && isLikelyYYYYMMDD(text) {
+                    continue
+                }
+                
+                // Check if token is near date/time context words
+                if isNearDateContext(text, in: line, range: hit.textRange) {
+                    continue
+                }
             }
-            
             hits.append(hit)
         }
         
@@ -190,6 +224,44 @@ public enum SensitivityDetector {
         
         // Basic validation: day 1-31, month 1-12, year 100-999
         return day >= 1 && day <= 31 && month >= 1 && month <= 12 && year >= 100 && year <= 999
+    }
+    
+    /// Checks if an 8-digit string looks like YYYYMMDD format
+    private static func isLikelyYYYYMMDD(_ text: String) -> Bool {
+        guard text.count == 8 else { return false }
+        
+        let year = Int(String(text.prefix(4))) ?? 0
+        let month = Int(String(text.dropFirst(4).prefix(2))) ?? 0
+        let day = Int(String(text.suffix(2))) ?? 0
+        
+        return year >= 1900 && year <= 2100 && month >= 1 && month <= 12 && day >= 1 && day <= 31
+    }
+    
+    /// Checks if a numeric token is near date/time context words
+    private static func isNearDateContext(_ text: String, in line: String, range: Range<String.Index>) -> Bool {
+        // For now, skip context checking to avoid string index issues
+        // This is a simplified version that just checks the entire line
+        let lineLowercased = line.lowercased()
+        
+        // Check for date/time context words in the entire line
+        let dateContextWords = [
+            "mon", "tue", "wed", "thu", "fri", "sat", "sun",
+            "am", "pm", "utc", "ist", "gmt", "pst", "est",
+            "jan", "feb", "mar", "apr", "may", "jun",
+            "jul", "aug", "sep", "oct", "nov", "dec",
+            "january", "february", "march", "april", "june",
+            "july", "august", "september", "october", "november", "december",
+            "today", "yesterday", "tomorrow", "date", "time"
+        ]
+        
+        // Only check for date context if the line is relatively short (single line)
+        // This prevents false positives when processing multi-line text
+        if line.count > 100 {
+            return false
+        }
+        
+        let foundContextWord = dateContextWords.first { lineLowercased.contains($0) }
+        return foundContextWord != nil
     }
 
     // MARK: - Name Detection
@@ -333,4 +405,5 @@ public enum SensitivityDetector {
         }
         return unique
     }
+    
 }
