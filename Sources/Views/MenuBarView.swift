@@ -641,19 +641,6 @@ struct MenuBarView: View {
                           .buttonStyle(.plain)
                           .help("Settings")
                           
-                          // Group toggle button
-                          Button(action: {
-                              withAnimation(.easeInOut(duration: 0.25)) {
-                                  groupingEnabled.toggle()
-                              }
-                          }) {
-                              Image(systemName: groupingEnabled ? "rectangle.3.group" : "rectangle.3.group.fill")
-                                  .font(.system(size: 14, weight: .medium))
-                                  .foregroundColor(groupingEnabled ? .accentColor : .secondary)
-                          }
-                          .buttonStyle(.plain)
-                          .help(groupingEnabled ? "Disable grouping" : "Enable grouping")
-                          
                           // Refresh button
                           Button(action: {
                               // Manual refresh - reload from current location

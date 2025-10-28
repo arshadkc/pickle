@@ -5,6 +5,7 @@ struct SettingsView: View {
     @ObservedObject private var locationManager = ScreenshotLocationManager.shared
     @AppStorage("launchAtLogin") private var launchAtLogin = false
     @AppStorage("autoCleanDays") private var autoCleanDays = 0
+    @AppStorage("pickle.groupingEnabled") private var groupingEnabled = true
     @State private var showLocationUpdateConfirmation = false
     @Binding var isPresented: Bool
     
@@ -40,8 +41,8 @@ struct SettingsView: View {
                 Spacer()
                 
                 Text("Settings")
-                    .font(.title2)
-                    .fontWeight(.semibold)
+                    .font(.headline)
+                    .fontWeight(.medium)
                 
                 Spacer()
                 
@@ -75,6 +76,15 @@ struct SettingsView: View {
                             .font(.body)
                         Spacer()
                         Toggle("", isOn: $launchAtLogin)
+                            .toggleStyle(SwitchToggleStyle())
+                    }
+                    .padding(.horizontal, 20)
+                    
+                    HStack {
+                        Text("Group Screenshots by Date")
+                            .font(.body)
+                        Spacer()
+                        Toggle("", isOn: $groupingEnabled)
                             .toggleStyle(SwitchToggleStyle())
                     }
                     .padding(.horizontal, 20)
@@ -159,35 +169,6 @@ struct SettingsView: View {
                                 .frame(height: 20)
                         }
                 
-                Divider()
-                    .padding(.horizontal, 20)
-                
-                // About Section
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("About")
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.primary)
-                        .padding(.horizontal, 20)
-                        .padding(.top, 20)
-                    
-                    HStack {
-                        Text("Version")
-                            .font(.body)
-                        Spacer()
-                        Text("\(appVersion) (\(buildNumber))")
-                            .font(.body)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding(.horizontal, 20)
-                    
-                    Button("Check for Updates…") {
-                        checkForUpdates()
-                    }
-                    .buttonStyle(.link)
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 20)
-                }
             }
         }
         .frame(minWidth: 400, maxWidth: 600)
@@ -199,15 +180,6 @@ struct SettingsView: View {
         }
     }
     
-    // MARK: - Computed Properties
-    
-    private var appVersion: String {
-        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
-    }
-    
-    private var buildNumber: String {
-        Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
-    }
     
     // MARK: - Actions
     
@@ -228,10 +200,6 @@ struct SettingsView: View {
         }
     }
     
-    private func checkForUpdates() {
-        print("Check for updates tapped")
-        // TODO: Implement actual update checking logic
-    }
 }
 
 #if DEBUG && canImport(SwiftUI) && ENABLE_PREVIEWS

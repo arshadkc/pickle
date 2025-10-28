@@ -76,6 +76,9 @@ public enum SensitivityDetector {
         // Fallback regex-based email detection to catch formats NSDataDetector can miss
         hits.append(contentsOf: detectEmailsWithRegex(in: line))
         
+        // Fallback regex-based URL detection to catch URLs without protocols
+        hits.append(contentsOf: detectURLsWithRegex(in: line))
+        
         // Fallback numeric detector for digit-only sequences (e.g., loose phone numbers)
         hits.append(contentsOf: detectNumericSequences(in: line))
         
@@ -153,6 +156,37 @@ public enum SensitivityDetector {
     private static func detectEmailsWithRegex(in line: String) -> [Hit] {
         let pattern = "(?xi)[A-Z0-9._%+-]+\\s*@\\s*[A-Z0-9.-]+\\s*\\.[A-Z]{2,}"
         return detectWithRegex(pattern: pattern, in: line, kind: .email, options: [.caseInsensitive, .allowCommentsAndWhitespace])
+    }
+    
+    /// Detects URLs using regex as a fallback when NSDataDetector misses URLs without protocols
+    private static func detectURLsWithRegex(in line: String) -> [Hit] {
+        var hits: [Hit] = []
+        
+        // First try the standard pattern for clean URLs with protocols
+        let protocolPattern = "(?xi)https?://[a-z0-9][a-z0-9-]{0,61}[a-z0-9]\\.[a-z]{2,}(?:/[^\\s]*)?"
+        hits.append(contentsOf: detectWithRegex(pattern: protocolPattern, in: line, kind: .url, options: [.caseInsensitive]))
+        
+        // Then try the standard pattern for clean URLs without protocols
+        let standardPattern = "(?xi)(?:www\\.)?[a-z0-9][a-z0-9-]{0,61}[a-z0-9]\\.[a-z]{2,}(?:/[^\\s]*)?"
+        hits.append(contentsOf: detectWithRegex(pattern: standardPattern, in: line, kind: .url, options: [.caseInsensitive]))
+        
+        // Handle OCR concatenation issues where URLs are merged with other text
+        // Simple approach: redact everything that starts with a domain pattern until whitespace/punctuation
+        // This will catch cases like "docs.stripe.comltesting" and redact the entire string
+        let ocrPattern = "(?xi)(?:www\\.)?[a-z0-9][a-z0-9-]{0,61}[a-z0-9]\\.[a-z]{2,}[a-z0-9]+"
+        let ocrHits = detectWithRegex(pattern: ocrPattern, in: line, kind: .url, options: [.caseInsensitive])
+        
+        // Only add OCR hits if they don't overlap with existing hits
+        for ocrHit in ocrHits {
+            let hasOverlap = hits.contains { existingHit in
+                existingHit.textRange.overlaps(ocrHit.textRange)
+            }
+            if !hasOverlap {
+                hits.append(ocrHit)
+            }
+        }
+        
+        return hits
     }
 
     // MARK: - Numeric Sequence Fallback
