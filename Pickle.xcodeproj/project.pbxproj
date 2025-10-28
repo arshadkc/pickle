@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0FAB23981C8EF7EA1D06B6EF /* QuitConfirm.swift in Sources */ = {isa = PBXBuildFile; fileRef = D534DF51BE93EE327D50E18A /* QuitConfirm.swift */; };
 		26558C2C6DBBE818D5F214DF /* RegionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22BB3C1DDAEBF71B36223E1D /* RegionBuilder.swift */; };
 		2EF111B8CDDD7BF0208BB047 /* SensitivityDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3E9054364A1332552CBB7F /* SensitivityDetector.swift */; };
 		362F3CF7A70BE1AC02B75D04 /* RedactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 944C76F6691E559C153A4DAC /* RedactionTests.swift */; };
@@ -56,6 +57,7 @@
 		BC0CCDB99D7EE6F281F2B83F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		C04676A67F105943C579F057 /* TextRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextRecognizer.swift; sourceTree = "<group>"; };
 		CEF855A4EACDC0CC01F7F85F /* NotificationSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSender.swift; sourceTree = "<group>"; };
+		D534DF51BE93EE327D50E18A /* QuitConfirm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuitConfirm.swift; sourceTree = "<group>"; };
 		E077091C50CEA3FF3B5ADE68 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EE3E9054364A1332552CBB7F /* SensitivityDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensitivityDetector.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -134,6 +136,7 @@
 			children = (
 				A95E61B4E27793C88D369C39 /* DirectoryWatcher.swift */,
 				CEF855A4EACDC0CC01F7F85F /* NotificationSender.swift */,
+				D534DF51BE93EE327D50E18A /* QuitConfirm.swift */,
 				900134AA9619665D552EC159 /* RedactionService.swift */,
 				B5048F7DFA271A533E60C6A9 /* ScreenshotFolderResolver.swift */,
 				67A7671EAD472442703B36E5 /* ScreenshotLocationManager.swift */,
@@ -280,6 +283,7 @@
 				81725C4546A28C00B38CBACA /* NotificationSender.swift in Sources */,
 				85ABF5A38C53AB12797A37DF /* PickleApp.swift in Sources */,
 				A2A04F146B667DF64B786C8B /* QuickLookPreviewController.swift in Sources */,
+				0FAB23981C8EF7EA1D06B6EF /* QuitConfirm.swift in Sources */,
 				BBD1767610179124FE4B1AAA /* RedactionService.swift in Sources */,
 				26558C2C6DBBE818D5F214DF /* RegionBuilder.swift in Sources */,
 				D3B27AEC7A13614BC041A8FD /* ScreenshotFolderResolver.swift in Sources */,

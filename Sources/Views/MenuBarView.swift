@@ -13,9 +13,16 @@ struct ShotTile: View {
     @State private var showError = false
     @State private var errorMessage = ""
     @State private var showCopyConfirmation = false
-    @State private var showRedactionToast = false
-    @State private var redactionToastMessage = ""
     @State private var isRedacting = false
+    @State private var showRedactionGlow = false
+    @State private var showProgressBar = false
+    @State private var showSuccessBadge = false
+    @State private var showFailureToast = false
+    @State private var failureMessage = ""
+    @State private var showCopyToast = false
+    @State private var showNewTileHighlight = false
+    @State private var showCopyGlyph = false
+    @State private var showRetryButton = false
     @FocusState private var isTextFieldFocused: Bool
     
     init(item: ScreenshotItem) {
@@ -45,54 +52,90 @@ struct ShotTile: View {
         .animation(.easeInOut(duration: 0.2), value: isDeleting)
         .animation(.easeInOut(duration: 0.15), value: isHovered)
         .shadow(
-            color: isHovered ? Color.black.opacity(0.2) : Color.black.opacity(0.1),
-            radius: isHovered ? 8 : 4,
+            color: isHovered ? Color.black.opacity(0.25) : Color.black.opacity(0.1),
+            radius: isHovered ? 12 : 4,
             x: 0,
-            y: isHovered ? 4 : 2
+            y: isHovered ? 6 : 2
         )
-        .scaleEffect(isDeleting ? 0.8 : (isHovered ? 1.05 : 1.0))
+        .scaleEffect(isDeleting ? 0.85 : (isHovered ? 1.02 : 1.0))
+        .brightness(isHovered ? 0.05 : 0)
             .overlay {
-                // Hover overlay
+                // Hover overlay with floating action bar
                 if isHovered && !isDeleting {
                     Rectangle()
-                        .fill(Color.black.opacity(0.4))
+                        .fill(Color.black.opacity(0.3))
                         .frame(height: 90)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .transition(.opacity)
                         .allowsHitTesting(false)
-                        .scaleEffect(isHovered ? 1.05 : 1.0)
+                        .scaleEffect(isHovered ? 1.02 : 1.0)
                     
                     VStack {
                         Spacer()
                         
-                        // Bottom row with delete and preview buttons
-                        HStack {
-                            // Delete button - left bottom
+                        // Floating action bar with blur effect
+                        HStack(spacing: 8) {
+                            // Delete button
                             Button(action: deleteScreenshot) {
                                 Image(systemName: "trash")
-                                    .font(.caption)
+                                    .font(.system(size: 10, weight: .medium))
                                     .foregroundColor(.white)
-                                    .padding(6)
+                                    .frame(width: 20, height: 20)
+                                    .background(
+                                        Circle()
+                                            .fill(Color.red.opacity(0.85))
+                                            .shadow(color: .black.opacity(0.25), radius: 6, x: 0, y: 2)
+                                    )
                             }
                             .buttonStyle(PlainButtonStyle())
+                            .scaleEffect(isHovered ? 1.05 : 1.0)
+                            .animation(.spring(response: 0.25, dampingFraction: 0.8), value: isHovered)
+                            .onHover { hovering in
+                                if hovering {
+                                    NSCursor.pointingHand.push()
+                                } else {
+                                    NSCursor.pop()
+                                }
+                            }
                             
                             Spacer()
                             
-                            // Preview button - right bottom
+                            // Preview button
                             Button(action: openQuickLook) {
                                 Image(systemName: "eye")
-                                    .font(.caption)
+                                    .font(.system(size: 10, weight: .medium))
                                     .foregroundColor(.white)
-                                    .padding(6)
+                                    .frame(width: 20, height: 20)
+                                    .background(
+                                        Circle()
+                                            .fill(Color.blue.opacity(0.85))
+                                            .shadow(color: .black.opacity(0.25), radius: 6, x: 0, y: 2)
+                                    )
                             }
                             .buttonStyle(PlainButtonStyle())
+                            .scaleEffect(isHovered ? 1.05 : 1.0)
+                            .animation(.spring(response: 0.25, dampingFraction: 0.8), value: isHovered)
+                            .onHover { hovering in
+                                if hovering {
+                                    NSCursor.pointingHand.push()
+                                } else {
+                                    NSCursor.pop()
+                                }
+                            }
                         }
-                    }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 6)
+                        .background(
+                            RoundedRectangle(cornerRadius: 18)
+                                .fill(.ultraThinMaterial)
+                                .shadow(color: .black.opacity(0.15), radius: 6, x: 0, y: 3)
+                        )
                     .padding(.horizontal, 8)
                     .padding(.bottom, 8)
+                    }
                     .frame(height: 90, alignment: .bottom)
-                    .transition(.opacity)
-                    .scaleEffect(isHovered ? 1.05 : 1.0)
+                    .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                    .scaleEffect(isHovered ? 1.02 : 1.0)
                 }
             }
             .overlay {
@@ -114,44 +157,221 @@ struct ShotTile: View {
                     .transition(.opacity.combined(with: .scale(scale: 0.8)))
                 }
                 
-                // Redaction toast message
-                if showRedactionToast {
-                    VStack {
-                        Spacer()
-                        Text(redactionToastMessage)
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.black.opacity(0.3))
-                            .clipShape(RoundedRectangle(cornerRadius: 6))
-                        Spacer()
-                        Spacer()
-                    }
-                    .frame(height: 90)
-                    .transition(.opacity.combined(with: .scale(scale: 0.8)))
-                }
                 
-                // Redaction loading indicator
+                // Redaction visual feedback system
                 if isRedacting {
                     VStack {
                         Spacer()
-                        HStack {
+                        
+                        // Spinner at center
                             ProgressView()
-                                .scaleEffect(0.6)
-                            Text("Redacting...")
-                                .font(.caption2)
-                                .foregroundColor(.secondary)
-                        }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.black.opacity(0.3))
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                            .scaleEffect(0.8)
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            .transition(.opacity.combined(with: .scale(scale: 0.8)))
+                        
                         Spacer()
+                        
+                        // Progress bar at bottom
+                        if showProgressBar {
+                            VStack(spacing: 0) {
+                                Spacer()
+                                
+                                // Progress bar track
+                                Rectangle()
+                                    .fill(Color.white.opacity(0.12))
+                                    .frame(height: 3)
+                                    .overlay(
+                                        // Progress fill
+                                        HStack {
+                                            Rectangle()
+                                                .fill(Color(red: 0.19, green: 0.82, blue: 0.35)) // #30D158
+                                                .frame(width: 100) // Indeterminate width
+                                                .animation(.easeInOut(duration: 0.4).repeatForever(autoreverses: true), value: showProgressBar)
+                                            Spacer()
+                                        }
+                                    )
+                                    .clipShape(RoundedRectangle(cornerRadius: 1.5))
+                        .padding(.horizontal, 8)
+                                    .padding(.bottom, 8)
+                            }
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                        }
+                    }
+                    .frame(height: 90)
+                }
+                
+                // Success badge
+                if showSuccessBadge {
+                    VStack {
+                        Spacer()
+                        
+                        HStack {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(Color(red: 0.19, green: 0.82, blue: 0.35)) // #30D158
+                                .font(.system(size: 16, weight: .medium))
+                            
+                            Text("Redacted")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                                .foregroundColor(.white)
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.black.opacity(0.6))
+                                .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+                        )
+                        .transition(.scale.combined(with: .opacity))
+                        
                         Spacer()
                     }
                     .frame(height: 90)
-                    .transition(.opacity.combined(with: .scale(scale: 0.8)))
+                }
+                
+                // Redaction success glow effect
+                if showRedactionGlow {
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color(red: 0.19, green: 0.82, blue: 0.35), lineWidth: 3) // #30D158
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color(red: 0.19, green: 0.82, blue: 0.35).opacity(0.1))
+                        )
+                        .frame(height: 90)
+                        .transition(.opacity)
+                        .allowsHitTesting(false)
+                }
+                
+                // Failure toast
+                if showFailureToast {
+                    VStack {
+                        Spacer()
+                        
+                        VStack(spacing: 8) {
+                            HStack {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundColor(.red)
+                                    .font(.system(size: 14, weight: .medium))
+                                
+                                Text(failureMessage)
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.white)
+                            }
+                            
+                            if showRetryButton {
+                                Button("Retry") {
+                                    // Retry the redaction
+                                    if failureMessage.contains("copy") {
+                                        redactAndSave()
+                                    } else {
+                                        redactInPlace()
+                                    }
+                                    
+                                    // Hide failure toast
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        showFailureToast = false
+                                        showRetryButton = false
+                                    }
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                            .font(.caption2)
+                                .fontWeight(.medium)
+                                .foregroundColor(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(Color.white.opacity(0.2))
+                                )
+                            }
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.red.opacity(0.8))
+                                .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+                        )
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        
+                        Spacer()
+                    }
+                    .frame(height: 90)
+                }
+                
+                
+                // Copy glyph animation
+                if showCopyGlyph {
+                    VStack {
+                        Spacer()
+                        
+                        Image(systemName: "doc.on.doc")
+                            .font(.system(size: 20, weight: .medium))
+                            .foregroundColor(.white)
+                            .padding(8)
+                            .background(
+                                Circle()
+                                    .fill(Color(red: 0.19, green: 0.82, blue: 0.35).opacity(0.9))
+                                    .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+                            )
+                            .offset(y: showCopyGlyph ? -8 : 0)
+                            .opacity(showCopyGlyph ? 0 : 1)
+                            .transition(.asymmetric(
+                                insertion: .scale.combined(with: .opacity),
+                                removal: .move(edge: .top).combined(with: .opacity)
+                            ))
+                        
+                        Spacer()
+                    }
+                    .frame(height: 90)
+                }
+                
+                
+                // Copy toast
+                if showCopyToast {
+                    VStack {
+                        Spacer()
+                        
+                        HStack {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(Color(red: 0.19, green: 0.82, blue: 0.35)) // #30D158
+                                .font(.system(size: 14, weight: .medium))
+                            
+                            Text("Redacted copy added to top of list")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                                .foregroundColor(.white)
+                            
+                            Button("Reveal in Finder") {
+                                // TODO: Implement reveal in Finder
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    showCopyToast = false
+                                }
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .font(.caption2)
+                            .fontWeight(.medium)
+                            .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.white.opacity(0.2))
+                            )
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.black.opacity(0.6))
+                                .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+                        )
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        
+                        Spacer()
+                    }
+                    .frame(height: 90)
                 }
             }
             
@@ -206,6 +426,12 @@ struct ShotTile: View {
         .frame(width: 120)
         .onHover { hovering in
             isHovered = hovering
+            // Change cursor based on hover state
+            if hovering {
+                NSCursor.openHand.push()
+            } else {
+                NSCursor.pop()
+            }
         }
         .onAppear {
             loadImage()
@@ -237,34 +463,29 @@ struct ShotTile: View {
             return itemProvider
         }
         .contextMenu {
-            Button("Copy Image") {
-                print("📋 COPY IMAGE BUTTON CLICKED!")
-                copyImageToClipboard()
-            }
+            Button("Copy Image", action: copyImageToClipboard)
+                .keyboardShortcut("c", modifiers: .command)
             
-            Button("Copy Path") {
-                copyPathToClipboard()
-            }
+            Button("Copy Path", action: copyPathToClipboard)
+                .keyboardShortcut("c", modifiers: [.command, .shift])
             
-            Button("Reveal in Finder") {
-                showInFinder()
-            }
+            Button("Reveal in Finder", action: showInFinder)
+                .keyboardShortcut("r", modifiers: .command)
             
             Divider()
             
             Menu("Redact") {
-                Button("Redact this image") {
-                    redactInPlace()
-                }
+                Button("Redact this image", action: redactInPlace)
+                    .keyboardShortcut("r", modifiers: [.command, .option])
                 
-                Button("Redact a copy") {
-                    redactAndSave()
-                }
+                Button("Redact a copy", action: redactAndSave)
+                    .keyboardShortcut("r", modifiers: [.command, .shift])
             }
             
-            Button("Share...") {
-                shareImage()
-            }
+            Divider()
+            
+            Button("Share...", action: shareImage)
+                .keyboardShortcut("s", modifiers: .command)
         }
     }
     
@@ -348,24 +569,32 @@ struct ShotTile: View {
     private func redactAndSave() {
         NSLog("🎯 REDACT BUTTON CLICKED!")
         print("🎯 REDACT BUTTON CLICKED!")
-        isRedacting = true
+        
+        // Start source tile pulse and copy glyph animation
+        startRedactionCopyVisualFeedback()
         
         RedactionService.shared.redactAndSave(imageURL: item.url) { result in
             DispatchQueue.main.async {
-                isRedacting = false
-                
                 switch result {
                 case .success(let outputURL):
                     // Add the new file to the store immediately for instant UI update
                     ScreenshotStore.shared.insertImmediately(outputURL)
                     
-                    // Determine appropriate toast message based on the outcome
-                    let message = determineToastMessage(for: outputURL)
-                    showRedactionToast(message: message)
+                    // Show success feedback immediately on source tile
+                    showRedactionCopySuccess()
+                    
+                    // Wait a moment for UI coordination, then trigger animations
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        // Trigger new tile animation
+                        NotificationCenter.default.post(name: NSNotification.Name("TriggerNewTileAnimation"), object: nil)
+                        
+                        // Trigger scroll cue to indicate new item at top
+                        NotificationCenter.default.post(name: NSNotification.Name("ShowScrollCue"), object: nil)
+                    }
                     
                 case .failure(let error):
-                    // Show error toast
-                    showRedactionToast(message: "Couldn't save redacted copy")
+                    // Show failure sequence
+                    showRedactionFailure(message: "Failed to create redacted copy")
                     print("Redaction failed: \(error.localizedDescription)")
                 }
             }
@@ -375,73 +604,189 @@ struct ShotTile: View {
     private func redactInPlace() {
         NSLog("🎯 REDACT IN-PLACE BUTTON CLICKED!")
         print("🎯 REDACT IN-PLACE BUTTON CLICKED!")
-        isRedacting = true
+        
+        // Start visual feedback sequence
+        startRedactionVisualFeedback()
         
         RedactionService.shared.redactInPlace(imageURL: item.url) { result in
             DispatchQueue.main.async {
-                isRedacting = false
-                
                 switch result {
                 case .success:
                     // Refresh the image to show the redacted version
                     loadImage()
-                    showRedactionToast(message: "🔒 Image redacted")
+                    
+                    // Show success sequence
+                    showRedactionInPlaceSuccess()
                     
                 case .failure(let error):
-                    // Show error toast
-                    showRedactionToast(message: "Couldn't redact image")
+                    // Show failure sequence
+                    showRedactionFailure(message: "Redaction failed")
                     print("In-place redaction failed: \(error.localizedDescription)")
                 }
             }
         }
     }
     
-    private func determineToastMessage(for outputURL: URL) -> String {
-        let filename = outputURL.lastPathComponent
+    // MARK: - New Visual Feedback System
+    
+    private func startRedactionVisualFeedback() {
+        // Initial trigger: glow pulse and dim
+        withAnimation(.easeOut(duration: 0.25)) {
+            showRedactionGlow = true
+        }
         
-        // Check if it's a timeout fallback (unredacted copy)
-        if filename.contains("redact-") && !filename.contains("redact-redact-") {
-            // This is a normal redacted copy
-            return "🔒 Redacted copy saved"
-        } else {
-            // This might be a timeout fallback or no-hit case
-            // For now, we'll use a generic message since we can't easily determine
-            // the specific case from just the URL. In a real implementation,
-            // we might pass additional context from the service.
-            return "🔒 Copy saved"
+        // Start spinner
+        withAnimation(.easeIn(duration: 0.12)) {
+            isRedacting = true
+        }
+        
+        // Show progress bar after 0.6s
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            withAnimation(.easeInOut(duration: 0.25)) {
+                showProgressBar = true
+            }
         }
     }
     
-    private func showRedactionToast(message: String) {
-        redactionToastMessage = message
-        showRedactionToast = true
+    private func startRedactionCopyVisualFeedback() {
+        // Start glow effect
+        withAnimation(.easeOut(duration: 0.25)) {
+            showRedactionGlow = true
+        }
         
-        // Auto-dismiss after 2 seconds
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+        // Dim the image
+        withAnimation(.easeInOut(duration: 0.15)) {
+            // This will be handled by the opacity modifier in the view
+        }
+        
+        // Show copy glyph animation
+        withAnimation(.easeIn(duration: 0.12)) {
+            showCopyGlyph = true
+        }
+        
+        // Hide copy glyph after animation
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             withAnimation(.easeInOut(duration: 0.2)) {
-                showRedactionToast = false
+                showCopyGlyph = false
             }
+        }
+    }
+    
+    private func showRedactionInPlaceSuccess() {
+        // Hide spinner and progress bar
+        withAnimation(.easeIn(duration: 0.12)) {
+            isRedacting = false
+            showProgressBar = false
+        }
+        
+        // Show success glow effect
+        withAnimation(.easeInOut(duration: 0.15)) {
+            showRedactionGlow = true
+        }
+        
+        // Show success badge
+        withAnimation(.spring(response: 0.25, dampingFraction: 0.8)) {
+            showSuccessBadge = true
+        }
+        
+        // Hide success badge after 1.2s
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                showSuccessBadge = false
+            }
+        }
+        
+        
+        // Hide glow after success
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                showRedactionGlow = false
+            }
+        }
+    }
+    
+    private func showRedactionCopySuccess() {
+        // Show success glow effect
+        withAnimation(.easeInOut(duration: 0.15)) {
+            showRedactionGlow = true
+        }
+        
+        // Show success badge
+        withAnimation(.spring(response: 0.25, dampingFraction: 0.8)) {
+            showSuccessBadge = true
+        }
+        
+        // Hide success badge after 1s
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                showSuccessBadge = false
+            }
+        }
+        
+        
+        // Hide glow after success
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                showRedactionGlow = false
+            }
+        }
+        
+        // Trigger new tile animation in the main view
+        // This will be handled by the parent view when the new item is added
+    }
+    
+    private func showRedactionFailure(message: String) {
+        // Hide spinner and progress bar
+        withAnimation(.easeIn(duration: 0.12)) {
+            isRedacting = false
+            showProgressBar = false
+        }
+        
+        // Set failure message and show failure toast
+        failureMessage = message
+        withAnimation(.easeInOut(duration: 0.25)) {
+            showFailureToast = true
+        }
+        
+        // Show retry button after a short delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                showRetryButton = true
+            }
+        }
+        
+        // Auto-dismiss failure toast after 6s (longer to allow retry)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 6.0) {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                showFailureToast = false
+                showRetryButton = false
+            }
+        }
+        
+        // Hide glow
+        withAnimation(.easeInOut(duration: 0.3)) {
+            showRedactionGlow = false
         }
     }
     
         private func deleteScreenshot() {
-            // Start deletion animation
-            withAnimation(.easeInOut(duration: 0.2)) {
+            // Start deletion animation with more dramatic effect
+            withAnimation(.easeInOut(duration: 0.25)) {
                 isDeleting = true
             }
             
             // Wait for animation to complete, then delete
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
                 do {
                     try FileManager.default.removeItem(at: item.url)
                     // Use withAnimation for smooth grid re-layout
-                    withAnimation(.easeInOut(duration: 0.3)) {
+                    withAnimation(.easeInOut(duration: 0.4)) {
                         ScreenshotStore.shared.items.removeAll { $0.url == item.url }
                     }
                 } catch {
                     print("Failed to delete screenshot: \(error)")
                     // Reset animation state if deletion failed
-                    withAnimation(.easeInOut(duration: 0.2)) {
+                    withAnimation(.easeInOut(duration: 0.25)) {
                         isDeleting = false
                     }
                 }
@@ -551,6 +896,7 @@ struct MenuBarView: View {
     @AppStorage("lastKnownScreenshotLocation") private var lastKnownScreenshotLocation = ""
     @AppStorage("suppressLocationPromptPermanently") private var suppressLocationPromptPermanently = false
     @AppStorage("pickle.groupingEnabled") private var groupingEnabled = true
+    @State private var showScrollCue = false
     
     // MARK: - Grouping Logic
     
@@ -593,6 +939,22 @@ struct MenuBarView: View {
         }
         
         return groups
+    }
+    
+    // MARK: - Scroll Cue
+    
+    private func triggerScrollCue() {
+        // Show scroll cue
+        withAnimation(.easeInOut(duration: 0.3)) {
+            showScrollCue = true
+        }
+        
+        // Hide scroll cue after 2s
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                showScrollCue = false
+            }
+        }
     }
     
     var body: some View {
@@ -641,28 +1003,28 @@ struct MenuBarView: View {
                           .buttonStyle(.plain)
                           .help("Settings")
                           
-                          // Refresh button
-                          Button(action: {
-                              // Manual refresh - reload from current location
-                              checkForLocationChanges()
-                          
-                           // Reload from current location
-                           if let currentLocation = screenshotFolderURL {
-                               print("🔄 DEBUG: Reloading from: \(currentLocation.path)")
-                               store.reload(from: currentLocation)
-                               AppDelegate.shared.restartDirectoryWatcher()
-                           } else {
-                               print("🔄 DEBUG: No current location set")
-                           }
-                       }) {
-                           Image(systemName: "arrow.clockwise")
-                               .font(.system(size: 14, weight: .medium))
-                       }
-                       .buttonStyle(.plain)
-                       .help("Refresh screenshots")
                       }
                       .padding(.horizontal)
                       .padding(.vertical, 8)
+                      
+                      // Scroll cue for new redacted copy
+                      if showScrollCue {
+                          HStack {
+                              Image(systemName: "arrow.up")
+                                  .font(.caption)
+                                  .foregroundColor(.secondary)
+                              
+                              Text("New redacted copy added ↑")
+                                  .font(.caption)
+                                  .foregroundColor(.secondary)
+                              
+                              Spacer()
+                          }
+                          .padding(.horizontal)
+                          .padding(.vertical, 4)
+                          .background(Color.secondary.opacity(0.1))
+                          .transition(.move(edge: .top).combined(with: .opacity))
+                      }
                 
                 // Line separator
                 Divider()
@@ -705,7 +1067,7 @@ struct MenuBarView: View {
                                                 GridItem(.flexible(), spacing: 8),
                                                 GridItem(.flexible(), spacing: 8)
                                             ], spacing: 8) {
-                                                ForEach(group.1) { item in
+                                                ForEach(Array(group.1.enumerated()), id: \.element.id) { index, item in
                                                     ShotTile(item: item)
                                                 }
                                             }
@@ -720,14 +1082,19 @@ struct MenuBarView: View {
                                     GridItem(.flexible(), spacing: 8),
                                     GridItem(.flexible(), spacing: 8)
                                 ], spacing: 8) {
-                                    ForEach(store.items) { item in
+                                    ForEach(Array(store.items.enumerated()), id: \.element.id) { index, item in
                                         ShotTile(item: item)
+                                            .onAppear {
+                                                // Only trigger redaction overlay for newly created tiles
+                                                // This will be handled by the notification system when a new tile is actually created
+                                            }
                                     }
                                 }
                                 .padding(.horizontal)
                             }
                         }
                         .animation(.easeInOut(duration: 0.25), value: groupingEnabled)
+                        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: store.items.count)
                     }
                     .frame(maxHeight: 300)
                 }
@@ -735,6 +1102,22 @@ struct MenuBarView: View {
             }
             .frame(width: 400)
             .padding(.bottom, 12)
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("TriggerNewTileAnimation"))) { _ in
+            triggerScrollCue()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ShowScrollCue"))) { _ in
+            // Show scroll cue to indicate new item at top
+            withAnimation(.easeInOut(duration: 0.3)) {
+                showScrollCue = true
+            }
+            
+            // Hide scroll cue after 3 seconds
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    showScrollCue = false
+                }
+            }
+        }
             .contextMenu {
                 Button("Settings...") {
                     withAnimation(.easeInOut(duration: 0.25)) {

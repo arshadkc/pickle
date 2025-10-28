@@ -46,14 +46,16 @@ struct SettingsView: View {
                 
                 Spacer()
                 
-                // Invisible spacer to center the title
-                HStack(spacing: 4) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 12, weight: .medium))
-                    Text("Back")
-                        .font(.system(size: 14, weight: .medium))
-                }
-                .opacity(0)
+        // Quit button
+        Button(action: {
+            NSApp.terminate(nil)
+        }) {
+            Image(systemName: "power")
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(.secondary)
+        }
+        .buttonStyle(.plain)
+        .help("Quit Pickle")
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 16)
@@ -63,32 +65,46 @@ struct SettingsView: View {
             
             VStack(spacing: 0) {
                 // General Section
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 16) {
                     Text("General")
                         .font(.headline)
                         .fontWeight(.semibold)
                         .foregroundColor(.primary)
                         .padding(.horizontal, 20)
-                        .padding(.top, 20)
+                        .padding(.top, 24)
                     
-                    HStack {
-                        Text("Launch at Login")
-                            .font(.body)
-                        Spacer()
-                        Toggle("", isOn: $launchAtLogin)
-                            .toggleStyle(SwitchToggleStyle())
+                    VStack(spacing: 12) {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Launch at Login")
+                                    .font(.body)
+                                    .foregroundColor(.primary)
+                                Text("Start Pickle automatically when you log in")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                            Toggle("", isOn: $launchAtLogin)
+                                .toggleStyle(SwitchToggleStyle())
+                        }
+                        .padding(.horizontal, 20)
+                        
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Group Screenshots by Date")
+                                    .font(.body)
+                                    .foregroundColor(.primary)
+                                Text("Organize screenshots into Today, Yesterday, etc.")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                            Toggle("", isOn: $groupingEnabled)
+                                .toggleStyle(SwitchToggleStyle())
+                        }
+                        .padding(.horizontal, 20)
                     }
-                    .padding(.horizontal, 20)
-                    
-                    HStack {
-                        Text("Group Screenshots by Date")
-                            .font(.body)
-                        Spacer()
-                        Toggle("", isOn: $groupingEnabled)
-                            .toggleStyle(SwitchToggleStyle())
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 20)
+                    .padding(.bottom, 24)
                 }
                 
                 Divider()
@@ -134,39 +150,51 @@ struct SettingsView: View {
                 }
                 
                         // Auto-Clean Section
-                        VStack(alignment: .leading, spacing: 12) {
+                        VStack(alignment: .leading, spacing: 16) {
                             Text("Auto-Clean")
                                 .font(.headline)
                                 .fontWeight(.semibold)
                                 .foregroundColor(.primary)
                                 .padding(.horizontal, 20)
-                                .padding(.top, 20)
+                                .padding(.top, 24)
                             
-                            HStack {
-                                Text("Auto-clean screenshots older than")
-                                    .font(.body)
-                                Spacer()
-                                Picker("", selection: $autoCleanDays) {
-                                    ForEach(autoCleanOptions, id: \.0) { option in
-                                        Text(option.1).tag(option.0)
+                            VStack(alignment: .leading, spacing: 12) {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("Auto-clean screenshots older than")
+                                            .font(.body)
+                                            .foregroundColor(.primary)
+                                        Text("Automatically delete old screenshots to save space")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
                                     }
+                                    Spacer()
+                                    Picker("", selection: $autoCleanDays) {
+                                        ForEach(autoCleanOptions, id: \.0) { option in
+                                            Text(option.1).tag(option.0)
+                                        }
+                                    }
+                                    .pickerStyle(.menu)
+                                    .frame(width: 120)
+                                    .disabled(locationManager.isCurrentLocationDesktop())
                                 }
-                                .pickerStyle(.menu)
-                                .frame(width: 120)
-                                .disabled(locationManager.isCurrentLocationDesktop())
-                            }
-                            .padding(.horizontal, 20)
-                            
-                            if locationManager.isCurrentLocationDesktop() {
-                                Text("Auto-clean is disabled when screenshots are saved to Desktop. Move screenshots to Pictures/Screenshots to enable this feature.")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                                    .fixedSize(horizontal: false, vertical: true)
+                                .padding(.horizontal, 20)
+                                
+                                if locationManager.isCurrentLocationDesktop() {
+                                    HStack {
+                                        Image(systemName: "exclamationmark.triangle")
+                                            .foregroundColor(.orange)
+                                            .font(.caption)
+                                        Text("Auto-clean is disabled when screenshots are saved to Desktop. Move screenshots to Pictures/Screenshots to enable this feature.")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
                                     .padding(.horizontal, 20)
+                                }
                             }
                             
                             Spacer()
-                                .frame(height: 20)
+                                .frame(height: 24)
                         }
                 
             }
@@ -201,6 +229,8 @@ struct SettingsView: View {
     }
     
 }
+
+
 
 #if DEBUG && canImport(SwiftUI) && ENABLE_PREVIEWS
 #Preview {

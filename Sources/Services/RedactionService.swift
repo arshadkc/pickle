@@ -230,24 +230,30 @@ class RedactionService {
                         diagnostics.hitCount = hitCount
                         diagnostics.mergedRegionCount = mergedRegionCount
                         
-                        // Step 5: Save with validation
-                        let outputURL = try generateUniqueOutputURL(for: imageURL, format: originalFormat)
-                        diagnostics.outputPath = outputURL.path
-                        NSLog("💾 SAVING REDACTED IMAGE to: \(outputURL.lastPathComponent)")
+                        // Step 5: Save to temporary location first
+                        let tempURL = URL(fileURLWithPath: "/tmp/pickle_redact_\(UUID().uuidString).\(originalFormat == .jpeg ? "jpg" : "png")")
+                        NSLog("💾 SAVING REDACTED IMAGE to temp: \(tempURL.lastPathComponent)")
                         
                         let saveStartTime = CFAbsoluteTimeGetCurrent()
-                        try saveImage(redactedImage, to: outputURL, originalFormat: originalFormat)
+                        try saveImage(redactedImage, to: tempURL, originalFormat: originalFormat)
                         diagnostics.saveTime = CFAbsoluteTimeGetCurrent() - saveStartTime
-                        NSLog("✅ REDACTED IMAGE SAVED SUCCESSFULLY!")
                         
-                        // Step 6: Validate saved file
-                        guard NSImage(contentsOf: outputURL) != nil else {
-                            try? FileManager.default.removeItem(at: outputURL)
+                        // Step 6: Validate temp file
+                        guard NSImage(contentsOf: tempURL) != nil else {
+                            try? FileManager.default.removeItem(at: tempURL)
                             await MainActor.run {
-                                completion(.failure(.redactionFailed("Saved file is invalid")))
+                                completion(.failure(.redactionFailed("Redacted file is invalid")))
                             }
                             return
                         }
+                        
+                        // Step 7: Move to final location
+                        let outputURL = try generateUniqueOutputURL(for: imageURL, format: originalFormat)
+                        diagnostics.outputPath = outputURL.path
+                        NSLog("💾 MOVING REDACTED IMAGE to final location: \(outputURL.lastPathComponent)")
+                        
+                        try FileManager.default.moveItem(at: tempURL, to: outputURL)
+                        NSLog("✅ REDACTED IMAGE SAVED SUCCESSFULLY!")
                         
                         diagnostics.totalTime = CFAbsoluteTimeGetCurrent() - startTime
                         logDiagnostics(diagnostics)
@@ -263,18 +269,35 @@ class RedactionService {
                         }
                     }
                 } else {
-                    // Timeout fallback: save unredacted copy
+                    // Timeout fallback: save unredacted copy to temp first
                     diagnostics.wasTimedOut = true
                     diagnostics.totalTime = CFAbsoluteTimeGetCurrent() - startTime
                     
-                    let outputURL = try generateUniqueOutputURL(for: imageURL, format: originalFormat)
-                    diagnostics.outputPath = outputURL.path
+                    // Save to temporary location first
+                    let tempURL = URL(fileURLWithPath: "/tmp/pickle_redact_\(UUID().uuidString).\(originalFormat == .jpeg ? "jpg" : "png")")
+                    NSLog("💾 SAVING UNREDACTED COPY to temp: \(tempURL.lastPathComponent)")
                     
                     let saveStartTime = CFAbsoluteTimeGetCurrent()
-                    try saveImage(originalImage, to: outputURL, originalFormat: originalFormat)
+                    try saveImage(originalImage, to: tempURL, originalFormat: originalFormat)
                     diagnostics.saveTime = CFAbsoluteTimeGetCurrent() - saveStartTime
                     
-                    // Validate saved file
+                    // Validate temp file
+                    guard NSImage(contentsOf: tempURL) != nil else {
+                        try? FileManager.default.removeItem(at: tempURL)
+                        await MainActor.run {
+                            completion(.failure(.redactionFailed("Unredacted copy is invalid")))
+                        }
+                        return
+                    }
+                    
+                    // Move to final location
+                    let outputURL = try generateUniqueOutputURL(for: imageURL, format: originalFormat)
+                    diagnostics.outputPath = outputURL.path
+                    NSLog("💾 MOVING UNREDACTED COPY to final location: \(outputURL.lastPathComponent)")
+                    
+                    try FileManager.default.moveItem(at: tempURL, to: outputURL)
+                    
+                    // Validate final file
                     guard NSImage(contentsOf: outputURL) != nil else {
                         try? FileManager.default.removeItem(at: outputURL)
                         await MainActor.run {
