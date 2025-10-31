@@ -24,6 +24,7 @@
 		9E215C2DA47C997B075C8081 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E077091C50CEA3FF3B5ADE68 /* Assets.xcassets */; };
 		A2A04F146B667DF64B786C8B /* QuickLookPreviewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C7EB57F8E4716774F1C6045 /* QuickLookPreviewController.swift */; };
 		A33C24DF1A4B4C3B0EFC9294 /* ImageRedactor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1991618B6421D2784953FADE /* ImageRedactor.swift */; };
+		B5D77B6B099E1FB34C69ACB9 /* LaunchAtLoginService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8753957802A59CCD0F597C6B /* LaunchAtLoginService.swift */; };
 		BBD1767610179124FE4B1AAA /* RedactionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 900134AA9619665D552EC159 /* RedactionService.swift */; };
 		D3B27AEC7A13614BC041A8FD /* ScreenshotFolderResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5048F7DFA271A533E60C6A9 /* ScreenshotFolderResolver.swift */; };
 		E93934ABDE50C2D6A2141AFB /* ScreenshotLocationPromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D517B04C5636C890921DB20 /* ScreenshotLocationPromptView.swift */; };
@@ -50,6 +51,7 @@
 		66172908FD6DC2DA511451EF /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		67A7671EAD472442703B36E5 /* ScreenshotLocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotLocationManager.swift; sourceTree = "<group>"; };
 		6AF51D3511DD32CC818F1C1F /* Toast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toast.swift; sourceTree = "<group>"; };
+		8753957802A59CCD0F597C6B /* LaunchAtLoginService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginService.swift; sourceTree = "<group>"; };
 		8D14BE45CE3D6843594B9F5D /* ScreenshotStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotStore.swift; sourceTree = "<group>"; };
 		900134AA9619665D552EC159 /* RedactionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedactionService.swift; sourceTree = "<group>"; };
 		9120C5037B894B16B10999A0 /* Pickle.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pickle.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -139,6 +141,7 @@
 			isa = PBXGroup;
 			children = (
 				A95E61B4E27793C88D369C39 /* DirectoryWatcher.swift */,
+				8753957802A59CCD0F597C6B /* LaunchAtLoginService.swift */,
 				CEF855A4EACDC0CC01F7F85F /* NotificationSender.swift */,
 				D534DF51BE93EE327D50E18A /* QuitConfirm.swift */,
 				900134AA9619665D552EC159 /* RedactionService.swift */,
@@ -285,6 +288,7 @@
 			files = (
 				5BC8F0CEC2E7F0E7CC5897F1 /* DirectoryWatcher.swift in Sources */,
 				A33C24DF1A4B4C3B0EFC9294 /* ImageRedactor.swift in Sources */,
+				B5D77B6B099E1FB34C69ACB9 /* LaunchAtLoginService.swift in Sources */,
 				79F13998C25A724FFECD6281 /* MenuBarView.swift in Sources */,
 				81725C4546A28C00B38CBACA /* NotificationSender.swift in Sources */,
 				85ABF5A38C53AB12797A37DF /* PickleApp.swift in Sources */,

@@ -3,9 +3,9 @@ import AppKit
 
 struct SettingsView: View {
     @ObservedObject private var locationManager = ScreenshotLocationManager.shared
-    @AppStorage("launchAtLogin") private var launchAtLogin = false
     @AppStorage("autoCleanDays") private var autoCleanDays = 0
     @AppStorage("pickle.groupingEnabled") private var groupingEnabled = true
+    @State private var launchAtLogin = false
     @State private var showLocationUpdateConfirmation = false
     @Binding var isPresented: Bool
     
@@ -84,8 +84,14 @@ struct SettingsView: View {
                                     .foregroundColor(.secondary)
                             }
                             Spacer()
-                            Toggle("", isOn: $launchAtLogin)
-                                .toggleStyle(SwitchToggleStyle())
+                            Toggle("", isOn: Binding(
+                                get: { launchAtLogin },
+                                set: { newValue in
+                                    launchAtLogin = newValue
+                                    LaunchAtLoginService.shared.setEnabled(newValue)
+                                }
+                            ))
+                            .toggleStyle(SwitchToggleStyle())
                         }
                         .padding(.horizontal, 20)
                         
@@ -200,6 +206,10 @@ struct SettingsView: View {
             }
         }
         .frame(minWidth: 400, maxWidth: 600)
+        .onAppear {
+            // Sync launch at login state when view appears
+            launchAtLogin = LaunchAtLoginService.shared.isEnabled()
+        }
         .onKeyPress(.escape) {
             withAnimation(.easeInOut(duration: 0.25)) {
                 isPresented = false

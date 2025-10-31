@@ -26,25 +26,86 @@ final class QuickLookPreviewController: NSObject, QLPreviewPanelDataSource, QLPr
         // Activate the app first to ensure it's in the foreground
         NSApp.activate(ignoringOtherApps: true)
         
-        // Show the panel first
-        panel.makeKeyAndOrderFront(nil)
+        // Set window level to floating panel (above normal windows)
+        panel.level = .floating
         
-        // Force the panel to be on top with multiple approaches
+        // Force the panel to appear on top regardless of other windows
+        panel.orderFrontRegardless()
+        
+        // Make it key window to receive keyboard events
+        panel.makeKey()
+        
+        // Center and size the panel appropriately
         DispatchQueue.main.async {
-            // Try different window level approaches
-            panel.level = .screenSaver
-            panel.orderFrontRegardless()
+            // Update the current index after panel is shown to ensure correct image
+            panel.currentPreviewItemIndex = self.currentIndex
             
-            // Also try making it key and front
-            panel.makeKeyAndOrderFront(nil)
+            // Ensure the panel refreshes to show the correct item
+            panel.reloadData()
             
-            // Additional delay to ensure it stays on top
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                panel.level = .screenSaver
-                panel.orderFrontRegardless()
-                panel.makeKeyAndOrderFront(nil)
+            // Get the current item's image size to calculate appropriate panel size
+            var imageSize: NSSize?
+            if self.currentIndex < self.urls.count {
+                let image = NSImage(contentsOf: self.urls[self.currentIndex])
+                imageSize = image?.size
             }
+            self.centerPanelWithSize(panel: panel, imageSize: imageSize)
+            
+            // Make sure it stays on top
+            panel.makeKeyAndOrderFront(nil)
         }
+    }
+    
+    /// Center the panel on screen with appropriate size
+    private func centerPanelWithSize(panel: QLPreviewPanel, imageSize: NSSize?) {
+        guard let screen = NSScreen.main else { return }
+        
+        let screenFrame = screen.visibleFrame
+        let maxWidth = screenFrame.width * 0.9  // Use 90% of screen width
+        let maxHeight = screenFrame.height * 0.9  // Use 90% of screen height
+        
+        var panelWidth: CGFloat
+        var panelHeight: CGFloat
+        
+        if let imgSize = imageSize, imgSize.width > 0 && imgSize.height > 0 {
+            // Calculate size maintaining aspect ratio
+            let aspectRatio = imgSize.width / imgSize.height
+            
+            if aspectRatio > 1 {
+                // Landscape: fit to width
+                panelWidth = min(maxWidth, imgSize.width)
+                panelHeight = panelWidth / aspectRatio
+            } else {
+                // Portrait: fit to height
+                panelHeight = min(maxHeight, imgSize.height)
+                panelWidth = panelHeight * aspectRatio
+            }
+            
+            // Ensure it doesn't exceed screen bounds
+            if panelWidth > maxWidth {
+                panelWidth = maxWidth
+                panelHeight = panelWidth / aspectRatio
+            }
+            if panelHeight > maxHeight {
+                panelHeight = maxHeight
+                panelWidth = panelHeight * aspectRatio
+            }
+            
+            // Minimum size
+            panelWidth = max(panelWidth, 400)
+            panelHeight = max(panelHeight, 300)
+        } else {
+            // Default size if we can't determine image size
+            panelWidth = min(maxWidth, 800)
+            panelHeight = min(maxHeight, 600)
+        }
+        
+        // Center on screen
+        let x = screenFrame.origin.x + (screenFrame.width - panelWidth) / 2
+        let y = screenFrame.origin.y + (screenFrame.height - panelHeight) / 2
+        
+        let frame = NSRect(x: x, y: y, width: panelWidth, height: panelHeight)
+        panel.setFrame(frame, display: true, animate: true)
     }
 
     /// Convenience for a single file
@@ -78,6 +139,9 @@ final class QuickLookPreviewController: NSObject, QLPreviewPanelDataSource, QLPr
                     panel.currentPreviewItemIndex = currentIndex
                 }
                 return true
+            case 49: // Spacebar
+                panel.orderOut(nil)
+                return true
             case 53: // ESC key
                 panel.orderOut(nil)
                 return true
@@ -86,5 +150,11 @@ final class QuickLookPreviewController: NSObject, QLPreviewPanelDataSource, QLPr
             }
         }
         return false
+    }
+    
+    
+    func previewPanel(_ panel: QLPreviewPanel!, transitionImageFor item: QLPreviewItem!, contentRect: UnsafeMutablePointer<NSRect>!) -> NSImage! {
+        // Provide transition image if needed, otherwise return nil for default behavior
+        return nil
     }
 }

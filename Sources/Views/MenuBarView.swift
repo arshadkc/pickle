@@ -958,13 +958,13 @@ struct UploadStatusPill: View {
                     switch phase {
                     case .preparing:
                         ProgressView()
-                            .scaleEffect(0.6)
+                            .scaleEffect(0.4)
                     case .uploading:
                         Text("\(Int(progress * 100))%")
                             .font(.system(size: 11, weight: .semibold))
                     case .verifying:
                         ProgressView()
-                            .scaleEffect(0.6)
+                            .scaleEffect(0.4)
                     case .success:
                         Image(systemName: "checkmark")
                             .font(.system(size: 11, weight: .bold))
