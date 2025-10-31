@@ -5,6 +5,7 @@ import UserNotifications
 
 struct ShotTile: View {
     let item: ScreenshotItem
+    let isHighlighted: Bool
     @State private var image: NSImage?
     @State private var isHovered = false
     @State private var isDeleting = false
@@ -19,14 +20,26 @@ struct ShotTile: View {
     @State private var showSuccessBadge = false
     @State private var showFailureToast = false
     @State private var failureMessage = ""
-    @State private var showCopyToast = false
-    @State private var showNewTileHighlight = false
     @State private var showCopyGlyph = false
     @State private var showRetryButton = false
+    @State private var isSharing = false
+    @State private var isUploading = false
+    @State private var uploadProgress: Double = 0.0
+    @State private var uploadPhase: UploadPhase? = nil
+    @State private var currentUploadTask: URLSessionUploadTask? = nil
     @FocusState private var isTextFieldFocused: Bool
     
-    init(item: ScreenshotItem) {
+    init(item: ScreenshotItem, isHighlighted: Bool = false) {
         self.item = item
+        self.isHighlighted = isHighlighted
+    }
+
+    enum UploadPhase {
+        case preparing
+        case uploading
+        case verifying
+        case success
+        case failed
     }
     
     var body: some View {
@@ -49,16 +62,44 @@ struct ShotTile: View {
         }
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .opacity(isDeleting ? 0 : 1)
+        .overlay(alignment: .bottom) {
+            UploadProgressBar(phase: uploadPhase, progress: uploadProgress)
+        }
+        .overlay(alignment: .topTrailing) {
+            UploadStatusPill(phase: uploadPhase, progress: uploadProgress)
+                .allowsHitTesting(false)
+        }
+        .overlay {
+            // Dim overlay based on phase
+            if let phase = uploadPhase {
+                let opacity: Double = (phase == .verifying) ? 0.12 : ((phase == .uploading || phase == .preparing) ? 0.08 : 0)
+                if opacity > 0 {
+                    RoundedRectangle(cornerRadius: 8).fill(Color.black.opacity(opacity))
+                }
+            }
+        }
         .animation(.easeInOut(duration: 0.2), value: isDeleting)
         .animation(.easeInOut(duration: 0.15), value: isHovered)
         .shadow(
-            color: isHovered ? Color.black.opacity(0.25) : Color.black.opacity(0.1),
-            radius: isHovered ? 12 : 4,
+            color: isHighlighted ? Color.accentColor.opacity(0.6) : (isHovered ? Color.black.opacity(0.25) : Color.black.opacity(0.1)),
+            radius: isHighlighted ? 16 : (isHovered ? 12 : 4),
             x: 0,
             y: isHovered ? 6 : 2
         )
-        .scaleEffect(isDeleting ? 0.85 : (isHovered ? 1.02 : 1.0))
+        .scaleEffect(isDeleting ? 0.85 : (isHighlighted ? 1.05 : (isHovered ? 1.02 : 1.0)))
         .brightness(isHovered ? 0.05 : 0)
+        .overlay {
+            // Highlight border when item is newly added
+            if isHighlighted {
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.accentColor, lineWidth: 3)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.accentColor.opacity(0.15))
+                    )
+                    .animation(.easeInOut(duration: 0.3), value: isHighlighted)
+            }
+        }
             .overlay {
                 // Hover overlay with floating action bar
                 if isHovered && !isDeleting {
@@ -73,65 +114,27 @@ struct ShotTile: View {
                     VStack {
                         Spacer()
                         
-                        // Floating action bar with blur effect
-                        HStack(spacing: 8) {
-                            // Delete button
-                            Button(action: deleteScreenshot) {
-                                Image(systemName: "trash")
-                                    .font(.system(size: 10, weight: .medium))
-                                    .foregroundColor(.white)
-                                    .frame(width: 20, height: 20)
-                                    .background(
-                                        Circle()
-                                            .fill(Color.red.opacity(0.85))
-                                            .shadow(color: .black.opacity(0.25), radius: 6, x: 0, y: 2)
-                                    )
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .scaleEffect(isHovered ? 1.05 : 1.0)
-                            .animation(.spring(response: 0.25, dampingFraction: 0.8), value: isHovered)
-                            .onHover { hovering in
-                                if hovering {
-                                    NSCursor.pointingHand.push()
-                                } else {
-                                    NSCursor.pop()
+                        HoverActionBar(
+                            isHovered: isHovered,
+                            isUploading: isUploading,
+                            onDelete: deleteScreenshot,
+                            onPreview: openQuickLook,
+                            onCancel: {
+                                currentUploadTask?.cancel()
+                                isUploading = false
+                                isSharing = false
+                                uploadPhase = .failed
+                                DispatchQueue.main.async {
+                                    ToastCenter.shared.info("Upload cancelled", subtitle: nil, duration: 1.5)
+                                }
+                                // Clear failed state after delay
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        self.uploadPhase = nil
+                                    }
                                 }
                             }
-                            
-                            Spacer()
-                            
-                            // Preview button
-                            Button(action: openQuickLook) {
-                                Image(systemName: "eye")
-                                    .font(.system(size: 10, weight: .medium))
-                                    .foregroundColor(.white)
-                                    .frame(width: 20, height: 20)
-                                    .background(
-                                        Circle()
-                                            .fill(Color.blue.opacity(0.85))
-                                            .shadow(color: .black.opacity(0.25), radius: 6, x: 0, y: 2)
-                                    )
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .scaleEffect(isHovered ? 1.05 : 1.0)
-                            .animation(.spring(response: 0.25, dampingFraction: 0.8), value: isHovered)
-                            .onHover { hovering in
-                                if hovering {
-                                    NSCursor.pointingHand.push()
-                                } else {
-                                    NSCursor.pop()
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 6)
-                        .background(
-                            RoundedRectangle(cornerRadius: 18)
-                                .fill(.ultraThinMaterial)
-                                .shadow(color: .black.opacity(0.15), radius: 6, x: 0, y: 3)
                         )
-                    .padding(.horizontal, 8)
-                    .padding(.bottom, 8)
                     }
                     .frame(height: 90, alignment: .bottom)
                     .transition(.opacity.combined(with: .scale(scale: 0.95)))
@@ -327,52 +330,6 @@ struct ShotTile: View {
                     .frame(height: 90)
                 }
                 
-                
-                // Copy toast
-                if showCopyToast {
-                    VStack {
-                        Spacer()
-                        
-                        HStack {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(Color(red: 0.19, green: 0.82, blue: 0.35)) // #30D158
-                                .font(.system(size: 14, weight: .medium))
-                            
-                            Text("Redacted copy added to top of list")
-                                .font(.caption)
-                                .fontWeight(.medium)
-                                .foregroundColor(.white)
-                            
-                            Button("Reveal in Finder") {
-                                // TODO: Implement reveal in Finder
-                                withAnimation(.easeInOut(duration: 0.2)) {
-                                    showCopyToast = false
-                                }
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .font(.caption2)
-                            .fontWeight(.medium)
-                            .foregroundColor(.white)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.white.opacity(0.2))
-                            )
-                        }
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.black.opacity(0.6))
-                                .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
-                        )
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                        
-                        Spacer()
-                    }
-                    .frame(height: 90)
-                }
             }
             
                 VStack(spacing: 2) {
@@ -477,12 +434,20 @@ struct ShotTile: View {
             Menu("Redact") {
                 Button("Redact this image", action: redactInPlace)
                     .keyboardShortcut("r", modifiers: [.command, .option])
+                    .disabled(isRedacting)
                 
                 Button("Redact a copy", action: redactAndSave)
                     .keyboardShortcut("r", modifiers: [.command, .shift])
+                    .disabled(isRedacting)
             }
             
             Divider()
+            
+            Button(action: shareLink) {
+                Label("Share Link", systemImage: "link")
+            }
+            .keyboardShortcut("l", modifiers: .command)
+            .disabled(isSharing || isUploading)
             
             Button("Share...", action: shareImage)
                 .keyboardShortcut("s", modifiers: .command)
@@ -566,9 +531,67 @@ struct ShotTile: View {
         }
     }
     
+    private func shareLink() {
+        // Prevent concurrent share attempts
+        guard !isSharing && !isUploading else {
+            DispatchQueue.main.async {
+                ToastCenter.shared.info("Share link already in progress", subtitle: nil, duration: 1.5)
+            }
+            return
+        }
+        
+        // Check if ShareLinkManager is already uploading (another tile might be uploading)
+        guard !ShareLinkManager.shared.isUploading else {
+            DispatchQueue.main.async {
+                ToastCenter.shared.info("Another share link is in progress", subtitle: "Please wait", duration: 1.5)
+            }
+            return
+        }
+        
+        isSharing = true
+        isUploading = true
+        uploadProgress = 0.0
+        uploadPhase = .preparing
+        
+        // Start upload in parallel and get immediate link copy
+        ShareLinkManager.shared.createShareLinkWithProgress(for: item.url, onTask: { task in
+            DispatchQueue.main.async {
+                self.currentUploadTask = task
+                self.uploadPhase = .uploading
+            }
+        }, progressCallback: { progress in
+            DispatchQueue.main.async {
+                self.uploadProgress = progress
+                if progress >= 1.0 {
+                    self.uploadPhase = .verifying
+                }
+            }
+        }, completion: { success in
+            DispatchQueue.main.async {
+                // Always reset state flags, regardless of success/failure
+                self.isUploading = false
+                self.isSharing = false
+                self.uploadPhase = success ? .success : .failed
+                
+                // Auto-clear state after delay (both success and failure)
+                let delay = success ? 0.6 : 3.0 // Show failure longer so user can see it
+                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        self.uploadPhase = nil
+                    }
+                }
+            }
+        })
+    }
+    
     private func redactAndSave() {
-        NSLog("🎯 REDACT BUTTON CLICKED!")
-        print("🎯 REDACT BUTTON CLICKED!")
+        // Prevent concurrent redaction attempts
+        guard !isRedacting else {
+            DispatchQueue.main.async {
+                ToastCenter.shared.info("Redaction already in progress", subtitle: nil, duration: 1.5)
+            }
+            return
+        }
         
         // Start source tile pulse and copy glyph animation
         startRedactionCopyVisualFeedback()
@@ -577,23 +600,45 @@ struct ShotTile: View {
             DispatchQueue.main.async {
                 switch result {
                 case .success(let outputURL):
+                    // Clear redaction state
+                    isRedacting = false
+                    
+                    // Clear the glow effect
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        showRedactionGlow = false
+                    }
+                    
                     // Add the new file to the store immediately for instant UI update
                     ScreenshotStore.shared.insertImmediately(outputURL)
                     
-                    // Show success feedback immediately on source tile
-                    showRedactionCopySuccess()
+                    // Show ToastCenter toast
+                    ToastCenter.shared.success("Redacted copy added", subtitle: nil)
                     
-                    // Wait a moment for UI coordination, then trigger animations
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        // Trigger new tile animation
-                        NotificationCenter.default.post(name: NSNotification.Name("TriggerNewTileAnimation"), object: nil)
-                        
-                        // Trigger scroll cue to indicate new item at top
-                        NotificationCenter.default.post(name: NSNotification.Name("ShowScrollCue"), object: nil)
+                    // Highlight the new item and scroll to top
+                    // Use a small delay to ensure the item is in the store
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        // Find the item in MenuBarView and trigger highlight
+                        NotificationCenter.default.post(
+                            name: NSNotification.Name("HighlightNewRedactedCopy"),
+                            object: nil,
+                            userInfo: ["url": outputURL]
+                        )
                     }
                     
                 case .failure(let error):
-                    // Show failure sequence
+                    // Clear redaction state
+                    isRedacting = false
+                    
+                    // Clear the glow effect on failure
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        showRedactionGlow = false
+                    }
+                    
+                    // Show failure toast
+                    DispatchQueue.main.async {
+                        ToastCenter.shared.error("Failed to create redacted copy", subtitle: "Please try again")
+                    }
+                    // Show failure sequence on tile
                     showRedactionFailure(message: "Failed to create redacted copy")
                     print("Redaction failed: \(error.localizedDescription)")
                 }
@@ -602,8 +647,13 @@ struct ShotTile: View {
     }
     
     private func redactInPlace() {
-        NSLog("🎯 REDACT IN-PLACE BUTTON CLICKED!")
-        print("🎯 REDACT IN-PLACE BUTTON CLICKED!")
+        // Prevent concurrent redaction attempts
+        guard !isRedacting else {
+            DispatchQueue.main.async {
+                ToastCenter.shared.info("Redaction already in progress", subtitle: nil, duration: 1.5)
+            }
+            return
+        }
         
         // Start visual feedback sequence
         startRedactionVisualFeedback()
@@ -649,6 +699,9 @@ struct ShotTile: View {
     }
     
     private func startRedactionCopyVisualFeedback() {
+        // Mark redaction as in progress
+        isRedacting = true
+        
         // Start glow effect
         withAnimation(.easeOut(duration: 0.25)) {
             showRedactionGlow = true
@@ -703,36 +756,6 @@ struct ShotTile: View {
                 showRedactionGlow = false
             }
         }
-    }
-    
-    private func showRedactionCopySuccess() {
-        // Show success glow effect
-        withAnimation(.easeInOut(duration: 0.15)) {
-            showRedactionGlow = true
-        }
-        
-        // Show success badge
-        withAnimation(.spring(response: 0.25, dampingFraction: 0.8)) {
-            showSuccessBadge = true
-        }
-        
-        // Hide success badge after 1s
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            withAnimation(.easeInOut(duration: 0.2)) {
-                showSuccessBadge = false
-            }
-        }
-        
-        
-        // Hide glow after success
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            withAnimation(.easeInOut(duration: 0.3)) {
-                showRedactionGlow = false
-            }
-        }
-        
-        // Trigger new tile animation in the main view
-        // This will be handled by the parent view when the new item is added
     }
     
     private func showRedactionFailure(message: String) {
@@ -886,9 +909,158 @@ struct ShotTile: View {
         
 }
 
+// MARK: - Extracted Subviews
+
+struct UploadProgressBar: View {
+    let phase: ShotTile.UploadPhase?
+    let progress: Double
+    
+    var body: some View {
+        Group {
+            if phase == .uploading || phase == .verifying || phase == .failed || phase == .success {
+                GeometryReader { geo in
+                    let inset: CGFloat = 8
+                    let width = max(0, (geo.size.width - inset * 2) * barProgress)
+                    ZStack(alignment: .leading) {
+                        RoundedRectangle(cornerRadius: 1)
+                            .fill(Color.white.opacity(0.12))
+                            .frame(height: 2)
+                            .padding(.horizontal, inset)
+                        RoundedRectangle(cornerRadius: 1)
+                            .fill(isFailed ? Color.red : Color.accentColor)
+                            .frame(width: width, height: 2)
+                            .padding(.horizontal, inset)
+                            .animation(.easeInOut(duration: 0.15), value: progress)
+                    }
+                }
+                .frame(height: 6)
+            }
+        }
+    }
+    
+    private var isFailed: Bool { phase == .failed }
+    private var isSuccess: Bool { phase == .success }
+    private var barProgress: CGFloat {
+        if isFailed { return progress }
+        if isSuccess { return 1.0 }
+        return progress
+    }
+}
+
+struct UploadStatusPill: View {
+    let phase: ShotTile.UploadPhase?
+    let progress: Double
+    
+    var body: some View {
+        Group {
+            if let phase = phase {
+                HStack(spacing: 6) {
+                    switch phase {
+                    case .preparing:
+                        ProgressView()
+                            .scaleEffect(0.6)
+                    case .uploading:
+                        Text("\(Int(progress * 100))%")
+                            .font(.system(size: 11, weight: .semibold))
+                    case .verifying:
+                        ProgressView()
+                            .scaleEffect(0.6)
+                    case .success:
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 11, weight: .bold))
+                    case .failed:
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(.orange)
+                    }
+                }
+                .padding(.horizontal, 8)
+                .frame(height: 18, alignment: .center)
+                .background(.ultraThinMaterial)
+                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                .padding(6)
+                .transition(.opacity)
+            }
+        }
+    }
+}
+
+struct HoverActionBar: View {
+    let isHovered: Bool
+    let isUploading: Bool
+    let onDelete: () -> Void
+    let onPreview: () -> Void
+    let onCancel: () -> Void
+    
+    var body: some View {
+        HStack(spacing: 8) {
+            // Left side: Cancel (when uploading) or Delete (when not uploading)
+            if isUploading {
+                Button(action: onCancel) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.white)
+                        .frame(width: 20, height: 20)
+                        .background(
+                            Circle()
+                                .fill(Color.black.opacity(0.6))
+                                .shadow(color: .black.opacity(0.25), radius: 6, x: 0, y: 2)
+                        )
+                }
+                .buttonStyle(PlainButtonStyle())
+                .scaleEffect(isHovered ? 1.05 : 1.0)
+                .animation(.spring(response: 0.25, dampingFraction: 0.8), value: isHovered)
+            } else {
+                Button(action: onDelete) {
+                    Image(systemName: "trash")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.white)
+                        .frame(width: 20, height: 20)
+                        .background(
+                            Circle()
+                                .fill(Color.red.opacity(0.85))
+                                .shadow(color: .black.opacity(0.25), radius: 6, x: 0, y: 2)
+                        )
+                }
+                .buttonStyle(PlainButtonStyle())
+                .scaleEffect(isHovered ? 1.05 : 1.0)
+                .animation(.spring(response: 0.25, dampingFraction: 0.8), value: isHovered)
+            }
+            
+            Spacer()
+            
+            // Right side: Always show Preview
+            Button(action: onPreview) {
+                Image(systemName: "eye")
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(.white)
+                    .frame(width: 20, height: 20)
+                    .background(
+                        Circle()
+                            .fill(Color.blue.opacity(0.85))
+                            .shadow(color: .black.opacity(0.25), radius: 6, x: 0, y: 2)
+                    )
+            }
+            .buttonStyle(PlainButtonStyle())
+            .scaleEffect(isHovered ? 1.05 : 1.0)
+            .animation(.spring(response: 0.25, dampingFraction: 0.8), value: isHovered)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .background(
+            RoundedRectangle(cornerRadius: 18)
+                .fill(.ultraThinMaterial)
+                .shadow(color: .black.opacity(0.15), radius: 6, x: 0, y: 3)
+        )
+        .padding(.horizontal, 8)
+        .padding(.bottom, 8)
+    }
+}
+
 struct MenuBarView: View {
     @ObservedObject private var store = ScreenshotStore.shared
     @ObservedObject private var locationManager = ScreenshotLocationManager.shared
+    @ObservedObject private var shareLinkManager = ShareLinkManager.shared
     @State private var screenshotFolderURL: URL?
     @State private var showLocationPrompt = false
     @State private var showSettings = false
@@ -896,7 +1068,7 @@ struct MenuBarView: View {
     @AppStorage("lastKnownScreenshotLocation") private var lastKnownScreenshotLocation = ""
     @AppStorage("suppressLocationPromptPermanently") private var suppressLocationPromptPermanently = false
     @AppStorage("pickle.groupingEnabled") private var groupingEnabled = true
-    @State private var showScrollCue = false
+    @State private var highlightedItemURL: URL? = nil
     
     // MARK: - Grouping Logic
     
@@ -939,22 +1111,6 @@ struct MenuBarView: View {
         }
         
         return groups
-    }
-    
-    // MARK: - Scroll Cue
-    
-    private func triggerScrollCue() {
-        // Show scroll cue
-        withAnimation(.easeInOut(duration: 0.3)) {
-            showScrollCue = true
-        }
-        
-        // Hide scroll cue after 2s
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            withAnimation(.easeInOut(duration: 0.2)) {
-                showScrollCue = false
-            }
-        }
     }
     
     var body: some View {
@@ -1007,24 +1163,6 @@ struct MenuBarView: View {
                       .padding(.horizontal)
                       .padding(.vertical, 8)
                       
-                      // Scroll cue for new redacted copy
-                      if showScrollCue {
-                          HStack {
-                              Image(systemName: "arrow.up")
-                                  .font(.caption)
-                                  .foregroundColor(.secondary)
-                              
-                              Text("New redacted copy added ↑")
-                                  .font(.caption)
-                                  .foregroundColor(.secondary)
-                              
-                              Spacer()
-                          }
-                          .padding(.horizontal)
-                          .padding(.vertical, 4)
-                          .background(Color.secondary.opacity(0.1))
-                          .transition(.move(edge: .top).combined(with: .opacity))
-                      }
                 
                 // Line separator
                 Divider()
@@ -1044,77 +1182,94 @@ struct MenuBarView: View {
                     .frame(height: 120)
                     .frame(maxWidth: .infinity)
                 } else {
-                    ScrollView {
-                        Group {
-                            if groupingEnabled {
-                                // Grouped layout with section headers
-                                LazyVStack(spacing: 16) {
-                                    ForEach(Array(groupScreenshots(store.items).enumerated()), id: \.offset) { index, group in
-                                        VStack(alignment: .leading, spacing: 8) {
-                                        // Section header
-                                        HStack {
-                                            Text(group.0)
-                                                .font(.subheadline)
-                                                .fontWeight(.medium)
-                                                .foregroundColor(.secondary)
-                                            Spacer()
-                                        }
-                                        .padding(.horizontal, 4)
-                                            
-                                            // Grid for this group
-                                            LazyVGrid(columns: [
-                                                GridItem(.flexible(), spacing: 8),
-                                                GridItem(.flexible(), spacing: 8),
-                                                GridItem(.flexible(), spacing: 8)
-                                            ], spacing: 8) {
-                                                ForEach(Array(group.1.enumerated()), id: \.element.id) { index, item in
-                                                    ShotTile(item: item)
+                    ScrollViewReader { proxy in
+                        ScrollView {
+                            Group {
+                                if groupingEnabled {
+                                    // Grouped layout with section headers
+                                    LazyVStack(spacing: 16) {
+                                        ForEach(Array(groupScreenshots(store.items).enumerated()), id: \.offset) { index, group in
+                                            VStack(alignment: .leading, spacing: 8) {
+                                            // Section header
+                                            HStack {
+                                                Text(group.0)
+                                                    .font(.subheadline)
+                                                    .fontWeight(.medium)
+                                                    .foregroundColor(.secondary)
+                                                Spacer()
+                                            }
+                                            .padding(.horizontal, 4)
+                                                
+                                                // Grid for this group
+                                                LazyVGrid(columns: [
+                                                    GridItem(.flexible(), spacing: 8),
+                                                    GridItem(.flexible(), spacing: 8),
+                                                    GridItem(.flexible(), spacing: 8)
+                                                ], spacing: 8) {
+                                                    ForEach(Array(group.1.enumerated()), id: \.element.id) { index, item in
+                                                        ShotTile(item: item, isHighlighted: highlightedItemURL == item.url)
+                                                            .id(item.id)
+                                                    }
                                                 }
                                             }
                                         }
                                     }
+                                    .padding(.horizontal)
+                                } else {
+                                    // Flat layout (original)
+                                    LazyVGrid(columns: [
+                                        GridItem(.flexible(), spacing: 8),
+                                        GridItem(.flexible(), spacing: 8),
+                                        GridItem(.flexible(), spacing: 8)
+                                    ], spacing: 8) {
+                                        ForEach(Array(store.items.enumerated()), id: \.element.id) { index, item in
+                                            ShotTile(item: item, isHighlighted: highlightedItemURL == item.url)
+                                                .id(item.id)
+                                        }
+                                    }
+                                    .padding(.horizontal)
                                 }
-                                .padding(.horizontal)
-                            } else {
-                                // Flat layout (original)
-                                LazyVGrid(columns: [
-                                    GridItem(.flexible(), spacing: 8),
-                                    GridItem(.flexible(), spacing: 8),
-                                    GridItem(.flexible(), spacing: 8)
-                                ], spacing: 8) {
-                                    ForEach(Array(store.items.enumerated()), id: \.element.id) { index, item in
-                                        ShotTile(item: item)
-                                            .onAppear {
-                                                // Only trigger redaction overlay for newly created tiles
-                                                // This will be handled by the notification system when a new tile is actually created
-                                            }
+                            }
+                            .animation(.easeInOut(duration: 0.25), value: groupingEnabled)
+                            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: store.items.count)
+                        }
+                        .frame(maxHeight: 300)
+                        .onChange(of: highlightedItemURL) { oldValue, newValue in
+                            if let newURL = newValue {
+                                // Small delay to ensure the item is rendered
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                                    if let highlightedItem = store.items.first(where: { $0.url == newURL }) {
+                                        // Scroll to the highlighted item (which should be at top)
+                                        withAnimation(.easeInOut(duration: 0.5)) {
+                                            proxy.scrollTo(highlightedItem.id, anchor: .top)
+                                        }
+                                    } else {
+                                        // If item not found yet, scroll to top as fallback
+                                        withAnimation(.easeInOut(duration: 0.5)) {
+                                            proxy.scrollTo(store.items.first?.id ?? UUID(), anchor: .top)
+                                        }
                                     }
                                 }
-                                .padding(.horizontal)
                             }
                         }
-                        .animation(.easeInOut(duration: 0.25), value: groupingEnabled)
-                        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: store.items.count)
                     }
-                    .frame(maxHeight: 300)
                 }
                 
             }
             .frame(width: 400)
             .padding(.bottom, 12)
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("TriggerNewTileAnimation"))) { _ in
-            triggerScrollCue()
-        }
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ShowScrollCue"))) { _ in
-            // Show scroll cue to indicate new item at top
-            withAnimation(.easeInOut(duration: 0.3)) {
-                showScrollCue = true
-            }
-            
-            // Hide scroll cue after 3 seconds
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("HighlightNewRedactedCopy"))) { notification in
+            if let url = notification.userInfo?["url"] as? URL {
+                // Set highlighted item
                 withAnimation(.easeInOut(duration: 0.3)) {
-                    showScrollCue = false
+                    highlightedItemURL = url
+                }
+                
+                // Auto-clear highlight after 3 seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        highlightedItemURL = nil
+                    }
                 }
             }
         }

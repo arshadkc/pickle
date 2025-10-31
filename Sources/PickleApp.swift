@@ -154,7 +154,9 @@ struct PickleApp: App {
     
     var body: some Scene {
         MenuBarExtra("PickleApp", image: "MenuBarIcon") {
-            MenuBarView()
+            ToastHost {
+                MenuBarView()
+            }
         }
         .menuBarExtraStyle(.window)
     }

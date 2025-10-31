@@ -14,10 +14,12 @@
 		489803F02C1896B658B0DB4B /* ScreenshotLocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67A7671EAD472442703B36E5 /* ScreenshotLocationManager.swift */; };
 		5BC8F0CEC2E7F0E7CC5897F1 /* DirectoryWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = A95E61B4E27793C88D369C39 /* DirectoryWatcher.swift */; };
 		69234BC08CC54DADD3945D22 /* TextRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C04676A67F105943C579F057 /* TextRecognizer.swift */; };
+		78B8BE6361766030DE06DEA9 /* ShareLinkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C0CDACA7EF5B219911F9ABA /* ShareLinkManager.swift */; };
 		79F13998C25A724FFECD6281 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466965AF2013332E81FCE09B /* MenuBarView.swift */; };
 		81725C4546A28C00B38CBACA /* NotificationSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEF855A4EACDC0CC01F7F85F /* NotificationSender.swift */; };
 		85ABF5A38C53AB12797A37DF /* PickleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534516AA342599C25AD7E3D6 /* PickleApp.swift */; };
 		8B3A205130BF927E10CABB63 /* ScreenshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D14BE45CE3D6843594B9F5D /* ScreenshotStore.swift */; };
+		8BDF58D67678B67EB134A464 /* Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF51D3511DD32CC818F1C1F /* Toast.swift */; };
 		91D1711FFCCD95774BDD6B88 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66172908FD6DC2DA511451EF /* SettingsView.swift */; };
 		9E215C2DA47C997B075C8081 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E077091C50CEA3FF3B5ADE68 /* Assets.xcassets */; };
 		A2A04F146B667DF64B786C8B /* QuickLookPreviewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C7EB57F8E4716774F1C6045 /* QuickLookPreviewController.swift */; };
@@ -42,10 +44,12 @@
 		1D517B04C5636C890921DB20 /* ScreenshotLocationPromptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotLocationPromptView.swift; sourceTree = "<group>"; };
 		22BB3C1DDAEBF71B36223E1D /* RegionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegionBuilder.swift; sourceTree = "<group>"; };
 		466965AF2013332E81FCE09B /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
+		4C0CDACA7EF5B219911F9ABA /* ShareLinkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareLinkManager.swift; sourceTree = "<group>"; };
 		534516AA342599C25AD7E3D6 /* PickleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickleApp.swift; sourceTree = "<group>"; };
 		5E36B97967045314E2980941 /* Pickle.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Pickle.entitlements; sourceTree = "<group>"; };
 		66172908FD6DC2DA511451EF /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		67A7671EAD472442703B36E5 /* ScreenshotLocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotLocationManager.swift; sourceTree = "<group>"; };
+		6AF51D3511DD32CC818F1C1F /* Toast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toast.swift; sourceTree = "<group>"; };
 		8D14BE45CE3D6843594B9F5D /* ScreenshotStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotStore.swift; sourceTree = "<group>"; };
 		900134AA9619665D552EC159 /* RedactionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedactionService.swift; sourceTree = "<group>"; };
 		9120C5037B894B16B10999A0 /* Pickle.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pickle.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -140,6 +144,7 @@
 				900134AA9619665D552EC159 /* RedactionService.swift */,
 				B5048F7DFA271A533E60C6A9 /* ScreenshotFolderResolver.swift */,
 				67A7671EAD472442703B36E5 /* ScreenshotLocationManager.swift */,
+				4C0CDACA7EF5B219911F9ABA /* ShareLinkManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -176,6 +181,7 @@
 				466965AF2013332E81FCE09B /* MenuBarView.swift */,
 				1D517B04C5636C890921DB20 /* ScreenshotLocationPromptView.swift */,
 				66172908FD6DC2DA511451EF /* SettingsView.swift */,
+				6AF51D3511DD32CC818F1C1F /* Toast.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -292,7 +298,9 @@
 				8B3A205130BF927E10CABB63 /* ScreenshotStore.swift in Sources */,
 				2EF111B8CDDD7BF0208BB047 /* SensitivityDetector.swift in Sources */,
 				91D1711FFCCD95774BDD6B88 /* SettingsView.swift in Sources */,
+				78B8BE6361766030DE06DEA9 /* ShareLinkManager.swift in Sources */,
 				69234BC08CC54DADD3945D22 /* TextRecognizer.swift in Sources */,
+				8BDF58D67678B67EB134A464 /* Toast.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
