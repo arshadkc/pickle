@@ -1,5 +1,4 @@
 import SwiftUI
-import UserNotifications
 
 /// A non-intrusive macOS-style banner prompting users to change their screenshot location
 struct ScreenshotLocationPromptView: View {
@@ -109,13 +108,16 @@ struct ScreenshotLocationPromptView: View {
                         HStack(spacing: 6) {
                                    if isProcessing {
                                        ProgressView()
-                                           .scaleEffect(0.8)
+                                           .scaleEffect(0.5)
+                                           .frame(width: 14, height: 14)
                                        Text("Moving...")
                                    } else {
                                        Image(systemName: "folder.badge.plus")
+                                           .frame(width: 14, height: 14)
                                        Text("Move to Pictures")
                                    }
                         }
+                        .fixedSize()
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.regular)
@@ -149,7 +151,6 @@ struct ScreenshotLocationPromptView: View {
                 
                 // Step 3: Show success state
                 showSuccessState = true
-                showSuccessNotification()
                 
                 // Step 4: Mark as prompted and prepare for auto-dismiss
                 hasPromptedForLocationChange = true
@@ -193,26 +194,6 @@ struct ScreenshotLocationPromptView: View {
                 } else {
                     continuation.resume(throwing: NSError(domain: "ScreenshotLocationError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to update system preferences"]))
                 }
-            }
-        }
-    }
-    
-    private func showSuccessNotification() {
-        // Use modern UserNotifications framework for macOS 14+
-        let content = UNMutableNotificationContent()
-        content.title = "Screenshot Location Updated"
-        content.body = "New screenshots will be saved in \"Pictures/Screenshots\"."
-        content.sound = .default
-        
-        let request = UNNotificationRequest(
-            identifier: "screenshot-location-updated",
-            content: content,
-            trigger: nil
-        )
-        
-        UNUserNotificationCenter.current().add(request) { error in
-            if let error = error {
-                print("Failed to show success notification: \(error)")
             }
         }
     }

@@ -10,7 +10,7 @@ A beautiful macOS screenshot manager that lives in your menu bar, helping you or
 ## ✨ Features
 
 - **📸 Recent Screenshots**: View your latest screenshots in a clean, organized interface
-- **⚙️ Smart Settings**: Comprehensive settings panel with launch preferences and auto-cleanup options
+- **⚙️ Smart Settings**: Comprehensive settings panel with launch preferences
 - **📁 Location Management**: Easily move screenshots from Desktop to Pictures/Screenshots
 - **🔄 Real-time Monitoring**: Automatically detects new screenshots as you take them
 - **🎨 Native Design**: Beautiful, native macOS interface that feels right at home
@@ -66,10 +66,6 @@ Pickle offers several customization options:
 - **Desktop Detection**: If screenshots are saved to Desktop, Pickle will suggest moving them to Pictures/Screenshots
 - **One-Click Move**: Easily relocate your screenshots with a single button click
 
-#### Auto-Clean
-- **Smart Cleanup**: Automatically remove old screenshots (7, 14, 30, or 60 days)
-- **Desktop Protection**: Auto-clean is disabled when screenshots are saved to Desktop
-
 #### About
 - **Version Info**: View app version and build number
 - **Update Check**: Check for app updates (coming soon)
@@ -84,7 +80,6 @@ Sources/
 │   └── ScreenshotStore.swift          # Data model for screenshot management
 ├── Services/
 │   ├── DirectoryWatcher.swift         # File system monitoring
-│   ├── NotificationSender.swift       # User notifications
 │   ├── ScreenshotFolderResolver.swift # Screenshot location detection
 │   └── ScreenshotLocationManager.swift # Location management
 ├── Views/

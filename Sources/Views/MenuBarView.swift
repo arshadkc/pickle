@@ -1,7 +1,6 @@
 import SwiftUI
 import AppKit
 import QuickLookThumbnailing
-import UserNotifications
 
 struct ShotTile: View {
     let item: ScreenshotItem
@@ -1128,17 +1127,6 @@ struct MenuBarView: View {
                     // Restart directory watcher when location changes
                     AppDelegate.shared.restartDirectoryWatcher()
                 }
-                .onAppear {
-                    // Initialize screenshotFolderURL on first load
-                    if screenshotFolderURL == nil {
-                        screenshotFolderURL = ScreenshotLocationManager.shared.currentLocation()
-                        store.reload(from: screenshotFolderURL!)
-                        AppDelegate.shared.restartDirectoryWatcher()
-                    }
-                    
-                    // Check for location changes and show banner if needed
-                    checkForLocationChanges()
-                }
                 
                       // Header
                       HStack {
@@ -1171,16 +1159,78 @@ struct MenuBarView: View {
                 
                 // Screenshot Grid
                 if store.items.isEmpty {
-                    VStack(spacing: 8) {
-                        Image(systemName: "photo.on.rectangle")
-                            .font(.largeTitle)
-                            .foregroundColor(.secondary)
-                        Text("No screenshots found")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                    if store.permissionDenied {
+                        // Permission denied error state
+                        VStack(spacing: 16) {
+                            Image(systemName: "lock.shield")
+                                .font(.system(size: 48))
+                                .foregroundColor(.orange)
+                            
+                            VStack(spacing: 8) {
+                                Text("Permission Required")
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
+                                
+                                Text("Pickle needs permission to access your \(store.permissionDeniedFolder ?? "screenshot") folder to display screenshots.")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .multilineTextAlignment(.center)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                
+                                Text("Go to System Settings → Privacy & Security → Files and Folders → Enable access for PickleApp")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                                    .multilineTextAlignment(.center)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .padding(.top, 4)
+                            }
+                            
+                            HStack(spacing: 12) {
+                                Button("Open System Settings") {
+                                    // Open System Settings to Privacy & Security > Files and Folders
+                                    if #available(macOS 13.0, *) {
+                                        // Use the Files and Folders specific URL (not Full Disk Access)
+                                        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_FilesAndFolders") {
+                                            NSWorkspace.shared.open(url)
+                                        } else {
+                                            // Fallback to Privacy & Security
+                                            NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security")!)
+                                        }
+                                    } else {
+                                        // Fallback for older macOS versions
+                                        NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Library/PreferencePanes/Security.prefPane"))
+                                    }
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .controlSize(.regular)
+                                
+                                Button("Retry") {
+                                    // Retry by reloading the screenshot folder
+                                    let screenshotFolderURL = ScreenshotFolderResolver.getScreenshotFolderURL()
+                                    store.reload(from: screenshotFolderURL)
+                                    AppDelegate.shared.restartDirectoryWatcher()
+                                }
+                                .buttonStyle(.bordered)
+                                .controlSize(.regular)
+                            }
+                            .padding(.top, 8)
+                        }
+                        .padding(.vertical, 32)
+                        .padding(.horizontal, 20)
+                        .frame(maxWidth: .infinity)
+                    } else {
+                        // Normal empty state
+                        VStack(spacing: 8) {
+                            Image(systemName: "photo.on.rectangle")
+                                .font(.largeTitle)
+                                .foregroundColor(.secondary)
+                            Text("No screenshots found")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        .frame(height: 120)
+                        .frame(maxWidth: .infinity)
                     }
-                    .frame(height: 120)
-                    .frame(maxWidth: .infinity)
                 } else {
                     ScrollViewReader { proxy in
                         ScrollView {
@@ -1258,6 +1308,17 @@ struct MenuBarView: View {
             }
             .frame(width: 400)
             .padding(.bottom, 12)
+            .onAppear {
+                // Initialize screenshotFolderURL on first load
+                if screenshotFolderURL == nil {
+                    screenshotFolderURL = ScreenshotLocationManager.shared.currentLocation()
+                    store.reload(from: screenshotFolderURL!)
+                    AppDelegate.shared.restartDirectoryWatcher()
+                }
+                
+                // Check for location changes and show banner if needed
+                checkForLocationChanges()
+            }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("HighlightNewRedactedCopy"))) { notification in
             if let url = notification.userInfo?["url"] as? URL {
                 // Set highlighted item
@@ -1297,6 +1358,13 @@ struct MenuBarView: View {
                let desktopURL = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first!
                let isDesktop = currentSystemLocation.standardizedFileURL == desktopURL.standardizedFileURL
                
+               // Debug logging
+               print("🔍 Location Check:")
+               print("   Current system location: \(currentSystemLocation.path)")
+               print("   Desktop URL: \(desktopURL.path)")
+               print("   Is Desktop: \(isDesktop)")
+               print("   Suppress flag: \(suppressLocationPromptPermanently)")
+               
                // Update location manager
                locationManager.checkForLocationChange()
                
@@ -1308,11 +1376,8 @@ struct MenuBarView: View {
                }
                
                // Update banner visibility
-               if isDesktop {
-                   // If location is Desktop, reset the suppression flag so we can show the banner again
-                   if suppressLocationPromptPermanently {
-                       suppressLocationPromptPermanently = false
-                   }
+               if isDesktop && !suppressLocationPromptPermanently {
+                   // Show prompt if location is Desktop and user hasn't permanently suppressed it
                    showLocationPrompt = true
                } else {
                    showLocationPrompt = false

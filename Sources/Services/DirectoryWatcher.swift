@@ -1,4 +1,5 @@
 import Foundation
+import Darwin
 
 extension URL {
     var creationDate: Date? {
@@ -16,6 +17,7 @@ class DirectoryWatcher {
     private var watchedURL: URL?
     private var seenFiles: Set<String> = []
     private var pollingTimer: Timer?
+    var onPermissionDenied: ((URL) -> Void)?
     
     func startWatching(url: URL, onNewFile: @escaping (URL) -> Void, onFileDeleted: @escaping (URL) -> Void) {
         stopWatching()
@@ -29,7 +31,15 @@ class DirectoryWatcher {
         let fileDescriptor = open(url.path, O_EVTONLY)
         
         guard fileDescriptor != -1 else {
-            print("Failed to open directory for watching: \(url.path)")
+            let errnoValue = errno
+            print("Failed to open directory for watching: \(url.path), errno: \(errnoValue)")
+            
+            // Check if this is a permission error
+            if errnoValue == EACCES || errnoValue == EPERM {
+                DispatchQueue.main.async {
+                    self.onPermissionDenied?(url)
+                }
+            }
             return
         }
         
@@ -84,6 +94,13 @@ class DirectoryWatcher {
             
         } catch {
             print("Error initializing seen files: \(error)")
+            // Check if this is a permission error
+            let nsError = error as NSError
+            if nsError.domain == NSPOSIXErrorDomain && (nsError.code == EACCES || nsError.code == EPERM) {
+                DispatchQueue.main.async {
+                    self.onPermissionDenied?(watchedURL)
+                }
+            }
         }
     }
     
@@ -137,6 +154,13 @@ class DirectoryWatcher {
             
         } catch {
             print("Error reading directory contents: \(error)")
+            // Check if this is a permission error
+            let nsError = error as NSError
+            if nsError.domain == NSPOSIXErrorDomain && (nsError.code == EACCES || nsError.code == EPERM) {
+                DispatchQueue.main.async {
+                    self.onPermissionDenied?(watchedURL)
+                }
+            }
         }
     }
     

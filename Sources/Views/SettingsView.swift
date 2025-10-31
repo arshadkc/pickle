@@ -3,20 +3,13 @@ import AppKit
 
 struct SettingsView: View {
     @ObservedObject private var locationManager = ScreenshotLocationManager.shared
-    @AppStorage("autoCleanDays") private var autoCleanDays = 0
     @AppStorage("pickle.groupingEnabled") private var groupingEnabled = true
     @State private var launchAtLogin = false
     @State private var showLocationUpdateConfirmation = false
+    @State private var isProcessing = false
+    @State private var showErrorAlert = false
+    @State private var errorMessage = ""
     @Binding var isPresented: Bool
-    
-    // Auto-clean options
-    private let autoCleanOptions = [
-        (0, "Off"),
-        (7, "7 days"),
-        (14, "14 days"),
-        (30, "30 days"),
-        (60, "60 days")
-    ]
     
     var body: some View {
         VStack(spacing: 0) {
@@ -134,11 +127,27 @@ struct SettingsView: View {
                             .fixedSize(horizontal: false, vertical: true)
                             .padding(.horizontal, 20)
                         
-                        Button("Move to Pictures/Screenshots") {
-                            changeScreenshotLocation()
+                        HStack {
+                            Spacer()
+                            Button(action: handleMoveToPicturesClick) {
+                                HStack(spacing: 6) {
+                                    if isProcessing {
+                                        ProgressView()
+                                            .scaleEffect(0.5)
+                                            .frame(width: 14, height: 14)
+                                        Text("Moving...")
+                                    } else {
+                                        Image(systemName: "folder.badge.plus")
+                                            .frame(width: 14, height: 14)
+                                        Text("Move to Pictures")
+                                    }
+                                }
+                                .fixedSize()
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .controlSize(.regular)
+                            .disabled(isProcessing)
                         }
-                        .buttonStyle(.borderedProminent)
-                        .controlSize(.regular)
                         .padding(.horizontal, 20)
                         
                         if showLocationUpdateConfirmation {
@@ -155,54 +164,6 @@ struct SettingsView: View {
                         .padding(.horizontal, 20)
                 }
                 
-                        // Auto-Clean Section
-                        VStack(alignment: .leading, spacing: 16) {
-                            Text("Auto-Clean")
-                                .font(.headline)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.primary)
-                                .padding(.horizontal, 20)
-                                .padding(.top, 24)
-                            
-                            VStack(alignment: .leading, spacing: 12) {
-                                HStack {
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text("Auto-clean screenshots older than")
-                                            .font(.body)
-                                            .foregroundColor(.primary)
-                                        Text("Automatically delete old screenshots to save space")
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                    }
-                                    Spacer()
-                                    Picker("", selection: $autoCleanDays) {
-                                        ForEach(autoCleanOptions, id: \.0) { option in
-                                            Text(option.1).tag(option.0)
-                                        }
-                                    }
-                                    .pickerStyle(.menu)
-                                    .frame(width: 120)
-                                    .disabled(locationManager.isCurrentLocationDesktop())
-                                }
-                                .padding(.horizontal, 20)
-                                
-                                if locationManager.isCurrentLocationDesktop() {
-                                    HStack {
-                                        Image(systemName: "exclamationmark.triangle")
-                                            .foregroundColor(.orange)
-                                            .font(.caption)
-                                        Text("Auto-clean is disabled when screenshots are saved to Desktop. Move screenshots to Pictures/Screenshots to enable this feature.")
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                    }
-                                    .padding(.horizontal, 20)
-                                }
-                            }
-                            
-                            Spacer()
-                                .frame(height: 24)
-                        }
-                
             }
         }
         .frame(minWidth: 400, maxWidth: 600)
@@ -216,23 +177,78 @@ struct SettingsView: View {
             }
             return .handled
         }
+        .alert("Error", isPresented: $showErrorAlert) {
+            Button("OK") { }
+        } message: {
+            Text(errorMessage)
+        }
     }
     
     
     // MARK: - Actions
     
-    private func changeScreenshotLocation() {
-        let recommendedFolder = locationManager.recommendedScreenshotsFolder()
+    @MainActor
+    private func handleMoveToPicturesClick() {
+        isProcessing = true
         
-        if locationManager.changeScreenshotLocation(to: recommendedFolder) {
-            withAnimation(.easeInOut(duration: 0.3)) {
-                showLocationUpdateConfirmation = true
+        Task {
+            do {
+                // Step 1: Ensure the Pictures/Screenshots folder exists
+                try await ensureScreenshotsFolderExists()
+                
+                // Step 2: Update system screenshot location
+                try await updateSystemScreenshotLocation()
+                
+                // Step 3: Restart directory watcher to watch the new location
+                AppDelegate.shared.restartDirectoryWatcher()
+                
+                // Step 4: Show success confirmation
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    showLocationUpdateConfirmation = true
+                }
+                
+                // Step 5: Hide confirmation after 3 seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        showLocationUpdateConfirmation = false
+                    }
+                }
+                
+            } catch {
+                // Handle error gracefully
+                errorMessage = "Could not update screenshot location. Please try again."
+                showErrorAlert = true
             }
             
-            // Hide confirmation after 3 seconds
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    showLocationUpdateConfirmation = false
+            isProcessing = false
+        }
+    }
+    
+    private func ensureScreenshotsFolderExists() async throws {
+        let folderURL = locationManager.recommendedScreenshotsFolder()
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            DispatchQueue.global(qos: .userInitiated).async {
+                do {
+                    try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true, attributes: nil)
+                    continuation.resume()
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
+    private func updateSystemScreenshotLocation() async throws {
+        let folderURL = locationManager.recommendedScreenshotsFolder()
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            DispatchQueue.global(qos: .userInitiated).async {
+                let success = self.locationManager.changeScreenshotLocation(to: folderURL)
+                if success {
+                    continuation.resume()
+                } else {
+                    continuation.resume(throwing: NSError(domain: "ScreenshotLocationError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to update system preferences"]))
                 }
             }
         }

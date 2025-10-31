@@ -4,23 +4,61 @@ import AppKit
 enum ScreenshotLocation {
     /// Returns the current macOS screenshot folder, or ~/Desktop if unset/invalid.
     static func current() -> URL {
-        // Read com.apple.screencapture:location from the *ByHost* domain.
         let domain = "com.apple.screencapture" as CFString
         let key    = "location" as CFString
-
-        if let raw = CFPreferencesCopyValue(key, domain, kCFPreferencesCurrentUser, kCFPreferencesCurrentHost) {
-            // Handle either String path or URL
-            if let path = raw as? String {
-                let expanded = (path as NSString).expandingTildeInPath
-                let url = URL(fileURLWithPath: expanded).standardizedFileURL
-                if isExistingDirectory(url) { return url }
-            } else if let url = raw as? URL, isExistingDirectory(url) {
-                return url.standardizedFileURL
+        let desktopURL = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first!
+        
+        // Check global domain first (user's explicit preference)
+        let globalValue: String? = {
+            if let raw = CFPreferencesCopyValue(key, domain, kCFPreferencesCurrentUser, kCFPreferencesAnyHost) {
+                if let path = raw as? String {
+                    return (path as NSString).expandingTildeInPath
+                }
+            }
+            return nil
+        }()
+        
+        // Check ByHost domain (host-specific preference)
+        let byHostValue: String? = {
+            if let raw = CFPreferencesCopyValue(key, domain, kCFPreferencesCurrentUser, kCFPreferencesCurrentHost) {
+                if let path = raw as? String {
+                    return (path as NSString).expandingTildeInPath
+                }
+            }
+            return nil
+        }()
+        
+        // macOS behavior: Desktop is the default when NO preference exists
+        // When user sets Desktop via Cmd+Shift+5, macOS doesn't write a preference
+        // So if global domain is empty, Desktop is active (even if ByHost has stale data)
+        if globalValue == nil {
+            // No global preference means Desktop is the active location
+            // Ignore ByHost if it exists (it might be stale)
+            print("📍 No global preference, Desktop is active: \(desktopURL.path)")
+            return desktopURL
+        }
+        
+        // If global preference exists, use it
+        if let globalPath = globalValue {
+            let url = URL(fileURLWithPath: globalPath).standardizedFileURL
+            if isExistingDirectory(url) {
+                print("📍 Using global preference: \(url.path)")
+                return url
             }
         }
-
-        // Fallback: Desktop
-        return FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first!
+        
+        // Fallback to ByHost if global didn't work
+        if let byHostPath = byHostValue {
+            let url = URL(fileURLWithPath: byHostPath).standardizedFileURL
+            if isExistingDirectory(url) {
+                print("📍 Using ByHost preference: \(url.path)")
+                return url
+            }
+        }
+        
+        // Final fallback: Desktop
+        print("📍 No valid preference found, using Desktop: \(desktopURL.path)")
+        return desktopURL
     }
 
     private static func isExistingDirectory(_ url: URL) -> Bool {
@@ -119,13 +157,7 @@ class ScreenshotLocationManager: ObservableObject {
         
         print("✅ DEBUG: Updated internal state to: \(target.path)")
         
-        // 5) Send a notification
-        NotificationSender.show(
-            title: "Screenshot Location Updated",
-            body: "New screenshots will be saved in '\(target.lastPathComponent).'"
-        )
-        
-        // 6) Post a custom notification for internal app use
+        // 5) Post a custom notification for internal app use
         NotificationCenter.default.post(name: .screenshotLocationChanged, object: nil)
 
         return true

@@ -15,6 +15,8 @@ class ScreenshotStore: ObservableObject {
     static let shared = ScreenshotStore()
     
     @Published var items: [ScreenshotItem] = []
+    @Published var permissionDenied: Bool = false
+    @Published var permissionDeniedFolder: String? = nil
     
     // Debouncing mechanism for batch updates
     private var pendingUpdates: [ScreenshotItem] = []
@@ -23,6 +25,12 @@ class ScreenshotStore: ObservableObject {
     private init() {}
     
     func reload(from url: URL) {
+        // Reset permission error state
+        DispatchQueue.main.async {
+            self.permissionDenied = false
+            self.permissionDeniedFolder = nil
+        }
+        
         do {
             let contents = try FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: [.creationDateKey])
             
@@ -43,6 +51,15 @@ class ScreenshotStore: ObservableObject {
         } catch {
             print("Error reloading screenshots: \(error)")
             items = []
+            
+            // Check if this is a permission error
+            let nsError = error as NSError
+            if nsError.domain == NSPOSIXErrorDomain && (nsError.code == EACCES || nsError.code == EPERM) {
+                DispatchQueue.main.async {
+                    self.permissionDenied = true
+                    self.permissionDeniedFolder = url.lastPathComponent
+                }
+            }
         }
     }
     

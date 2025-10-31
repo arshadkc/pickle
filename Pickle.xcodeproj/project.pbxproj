@@ -16,7 +16,6 @@
 		69234BC08CC54DADD3945D22 /* TextRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C04676A67F105943C579F057 /* TextRecognizer.swift */; };
 		78B8BE6361766030DE06DEA9 /* ShareLinkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C0CDACA7EF5B219911F9ABA /* ShareLinkManager.swift */; };
 		79F13998C25A724FFECD6281 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466965AF2013332E81FCE09B /* MenuBarView.swift */; };
-		81725C4546A28C00B38CBACA /* NotificationSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEF855A4EACDC0CC01F7F85F /* NotificationSender.swift */; };
 		85ABF5A38C53AB12797A37DF /* PickleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534516AA342599C25AD7E3D6 /* PickleApp.swift */; };
 		8B3A205130BF927E10CABB63 /* ScreenshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D14BE45CE3D6843594B9F5D /* ScreenshotStore.swift */; };
 		8BDF58D67678B67EB134A464 /* Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF51D3511DD32CC818F1C1F /* Toast.swift */; };
@@ -62,7 +61,6 @@
 		B5048F7DFA271A533E60C6A9 /* ScreenshotFolderResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotFolderResolver.swift; sourceTree = "<group>"; };
 		BC0CCDB99D7EE6F281F2B83F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		C04676A67F105943C579F057 /* TextRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextRecognizer.swift; sourceTree = "<group>"; };
-		CEF855A4EACDC0CC01F7F85F /* NotificationSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSender.swift; sourceTree = "<group>"; };
 		D534DF51BE93EE327D50E18A /* QuitConfirm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuitConfirm.swift; sourceTree = "<group>"; };
 		E077091C50CEA3FF3B5ADE68 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EE3E9054364A1332552CBB7F /* SensitivityDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensitivityDetector.swift; sourceTree = "<group>"; };
@@ -142,7 +140,6 @@
 			children = (
 				A95E61B4E27793C88D369C39 /* DirectoryWatcher.swift */,
 				8753957802A59CCD0F597C6B /* LaunchAtLoginService.swift */,
-				CEF855A4EACDC0CC01F7F85F /* NotificationSender.swift */,
 				D534DF51BE93EE327D50E18A /* QuitConfirm.swift */,
 				900134AA9619665D552EC159 /* RedactionService.swift */,
 				B5048F7DFA271A533E60C6A9 /* ScreenshotFolderResolver.swift */,
@@ -290,7 +287,6 @@
 				A33C24DF1A4B4C3B0EFC9294 /* ImageRedactor.swift in Sources */,
 				B5D77B6B099E1FB34C69ACB9 /* LaunchAtLoginService.swift in Sources */,
 				79F13998C25A724FFECD6281 /* MenuBarView.swift in Sources */,
-				81725C4546A28C00B38CBACA /* NotificationSender.swift in Sources */,
 				85ABF5A38C53AB12797A37DF /* PickleApp.swift in Sources */,
 				A2A04F146B667DF64B786C8B /* QuickLookPreviewController.swift in Sources */,
 				0FAB23981C8EF7EA1D06B6EF /* QuitConfirm.swift in Sources */,
