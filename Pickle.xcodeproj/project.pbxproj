@@ -11,6 +11,7 @@
 		26558C2C6DBBE818D5F214DF /* RegionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22BB3C1DDAEBF71B36223E1D /* RegionBuilder.swift */; };
 		2EF111B8CDDD7BF0208BB047 /* SensitivityDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3E9054364A1332552CBB7F /* SensitivityDetector.swift */; };
 		362F3CF7A70BE1AC02B75D04 /* RedactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 944C76F6691E559C153A4DAC /* RedactionTests.swift */; };
+		3BA95F31296669FC4EF896BF /* TelemetryDeck in Frameworks */ = {isa = PBXBuildFile; productRef = 2CAC7442391BC7A3EBC53C03 /* TelemetryDeck */; };
 		489803F02C1896B658B0DB4B /* ScreenshotLocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67A7671EAD472442703B36E5 /* ScreenshotLocationManager.swift */; };
 		5BC8F0CEC2E7F0E7CC5897F1 /* DirectoryWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = A95E61B4E27793C88D369C39 /* DirectoryWatcher.swift */; };
 		69234BC08CC54DADD3945D22 /* TextRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C04676A67F105943C579F057 /* TextRecognizer.swift */; };
@@ -23,6 +24,7 @@
 		9E215C2DA47C997B075C8081 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E077091C50CEA3FF3B5ADE68 /* Assets.xcassets */; };
 		A2A04F146B667DF64B786C8B /* QuickLookPreviewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C7EB57F8E4716774F1C6045 /* QuickLookPreviewController.swift */; };
 		A33C24DF1A4B4C3B0EFC9294 /* ImageRedactor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1991618B6421D2784953FADE /* ImageRedactor.swift */; };
+		B25393EC60CCCF9333D9D529 /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE899601B1B6C5502DA06D9D /* AnalyticsService.swift */; };
 		B5D77B6B099E1FB34C69ACB9 /* LaunchAtLoginService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8753957802A59CCD0F597C6B /* LaunchAtLoginService.swift */; };
 		BBD1767610179124FE4B1AAA /* RedactionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 900134AA9619665D552EC159 /* RedactionService.swift */; };
 		D3B27AEC7A13614BC041A8FD /* ScreenshotFolderResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5048F7DFA271A533E60C6A9 /* ScreenshotFolderResolver.swift */; };
@@ -64,7 +66,19 @@
 		D534DF51BE93EE327D50E18A /* QuitConfirm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuitConfirm.swift; sourceTree = "<group>"; };
 		E077091C50CEA3FF3B5ADE68 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EE3E9054364A1332552CBB7F /* SensitivityDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensitivityDetector.swift; sourceTree = "<group>"; };
+		FE899601B1B6C5502DA06D9D /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0A526E8A89740DAFB6AB362F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3BA95F31296669FC4EF896BF /* TelemetryDeck in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		03FB40DACD00D06ED27FD89C /* Tests */ = {
@@ -138,6 +152,7 @@
 		6E9BADB6801229EA75576902 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				FE899601B1B6C5502DA06D9D /* AnalyticsService.swift */,
 				A95E61B4E27793C88D369C39 /* DirectoryWatcher.swift */,
 				8753957802A59CCD0F597C6B /* LaunchAtLoginService.swift */,
 				D534DF51BE93EE327D50E18A /* QuitConfirm.swift */,
@@ -195,6 +210,7 @@
 			buildPhases = (
 				E63DE567D166EDB9A1AE3A5E /* Sources */,
 				C846691DAA6416E7A97D7A7E /* Resources */,
+				0A526E8A89740DAFB6AB362F /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -202,6 +218,7 @@
 			);
 			name = Pickle;
 			packageProductDependencies = (
+				2CAC7442391BC7A3EBC53C03 /* TelemetryDeck */,
 			);
 			productName = Pickle;
 			productReference = 9120C5037B894B16B10999A0 /* Pickle.app */;
@@ -232,7 +249,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 2600;
+				LastUpgradeCheck = 1500;
 			};
 			buildConfigurationList = 858CF7F293620E860635766B /* Build configuration list for PBXProject "Pickle" */;
 			compatibilityVersion = "Xcode 14.0";
@@ -244,6 +261,9 @@
 			);
 			mainGroup = 1DA2375101ECF45FDA56FC46;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				6BF3A199A58F66EACFC5BD5F /* XCRemoteSwiftPackageReference "SwiftSDK" */,
+			);
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -277,6 +297,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B25393EC60CCCF9333D9D529 /* AnalyticsService.swift in Sources */,
 				5BC8F0CEC2E7F0E7CC5897F1 /* DirectoryWatcher.swift in Sources */,
 				A33C24DF1A4B4C3B0EFC9294 /* ImageRedactor.swift in Sources */,
 				B5D77B6B099E1FB34C69ACB9 /* LaunchAtLoginService.swift in Sources */,
@@ -343,11 +364,9 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -361,7 +380,6 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
@@ -373,7 +391,6 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COMBINE_HIDPI_IMAGES = YES;
-				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -381,7 +398,7 @@
 					"@loader_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.pickle.appTests;
+				PRODUCT_BUNDLE_IDENTIFIER = app.pickleformac.pickleTests;
 				SDKROOT = macosx;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Pickle.app/Contents/MacOS/Pickle";
 			};
@@ -396,8 +413,6 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = DHF9ZWJF5S;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -408,7 +423,6 @@
 				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
 				ENABLE_RESOURCE_ACCESS_PHOTO_LIBRARY = NO;
 				INFOPLIST_FILE = Sources/Info.plist;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -417,6 +431,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.pickleformac.pickle;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				RUNTIME_EXCEPTION_ALLOW_DYLD_ENVIRONMENT_VARIABLES = NO;
 				RUNTIME_EXCEPTION_ALLOW_JIT = NO;
 				RUNTIME_EXCEPTION_ALLOW_UNSIGNED_EXECUTABLE_MEMORY = NO;
@@ -436,8 +451,6 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = DHF9ZWJF5S;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -448,7 +461,6 @@
 				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
 				ENABLE_RESOURCE_ACCESS_PHOTO_LIBRARY = NO;
 				INFOPLIST_FILE = Sources/Info.plist;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -457,6 +469,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.pickleformac.pickle;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				RUNTIME_EXCEPTION_ALLOW_DYLD_ENVIRONMENT_VARIABLES = NO;
 				RUNTIME_EXCEPTION_ALLOW_JIT = NO;
 				RUNTIME_EXCEPTION_ALLOW_UNSIGNED_EXECUTABLE_MEMORY = NO;
@@ -501,11 +514,9 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -526,7 +537,6 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -538,7 +548,6 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COMBINE_HIDPI_IMAGES = YES;
-				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -546,7 +555,7 @@
 					"@loader_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.pickle.appTests;
+				PRODUCT_BUNDLE_IDENTIFIER = app.pickleformac.pickleTests;
 				SDKROOT = macosx;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Pickle.app/Contents/MacOS/Pickle";
 			};
@@ -583,6 +592,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		6BF3A199A58F66EACFC5BD5F /* XCRemoteSwiftPackageReference "SwiftSDK" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/TelemetryDeck/SwiftSDK";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.3.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		2CAC7442391BC7A3EBC53C03 /* TelemetryDeck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6BF3A199A58F66EACFC5BD5F /* XCRemoteSwiftPackageReference "SwiftSDK" */;
+			productName = TelemetryDeck;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 3FB8EC58C02ECBE1D2074A2B /* Project object */;
 }
