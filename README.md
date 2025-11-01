@@ -15,6 +15,7 @@ A beautiful macOS screenshot manager that lives in your menu bar, helping you or
 - **🔄 Real-time Monitoring**: Automatically detects new screenshots as you take them
 - **🎨 Native Design**: Beautiful, native macOS interface that feels right at home
 - **🚀 Menu Bar Integration**: Quick access from your menu bar without cluttering your dock
+- **🔒 Privacy-Focused Analytics**: Optional TelemetryDeck integration for app improvement (see [TELEMETRY_SETUP.md](TELEMETRY_SETUP.md))
 
 ## 🖼️ Screenshots
 
@@ -35,17 +36,22 @@ git clone https://github.com/arshadkc/pickle.git
 cd pickle
 ```
 
-2. Open the project in Xcode:
-```bash
-open Pickle.xcodeproj
-```
+2. (Optional) Set up TelemetryDeck analytics:
+   - See [TELEMETRY_SETUP.md](TELEMETRY_SETUP.md) for detailed instructions
+   - This step is optional and can be skipped if you don't want analytics
 
-3. Build and run:
+3. Generate the Xcode project and build:
 ```bash
 make build
 ```
 
-Or use Xcode's build and run functionality.
+Or manually:
+```bash
+xcodegen generate
+open Pickle.xcodeproj
+```
+
+Then use Xcode's build and run functionality.
 
 ## 📖 Usage
 
@@ -79,6 +85,7 @@ Sources/
 ├── Model/
 │   └── ScreenshotStore.swift          # Data model for screenshot management
 ├── Services/
+│   ├── AnalyticsService.swift         # Privacy-focused analytics (TelemetryDeck)
 │   ├── DirectoryWatcher.swift         # File system monitoring
 │   ├── ScreenshotFolderResolver.swift # Screenshot location detection
 │   └── ScreenshotLocationManager.swift # Location management
@@ -113,6 +120,7 @@ make run
 - **File System Events**: Real-time directory monitoring
 - **App Storage**: Persistent user preferences
 - **Menu Bar Extra**: Native menu bar integration
+- **TelemetryDeck**: Privacy-focused, GDPR-compliant analytics (optional)
 
 ## 🤝 Contributing
 

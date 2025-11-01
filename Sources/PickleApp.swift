@@ -12,6 +12,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Initialize analytics
+        AnalyticsService.shared.initialize()
+        AnalyticsService.shared.trackAppLaunch()
+        
         // Hide app from dock (menu bar only)
         NSApp.setActivationPolicy(.accessory)
         

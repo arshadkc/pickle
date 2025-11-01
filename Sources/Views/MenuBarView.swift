@@ -485,6 +485,8 @@ struct ShotTile: View {
         let success = pasteboard.writeObjects([image])
         
         if success {
+            AnalyticsService.shared.trackScreenshotCopied()
+            
             // Show confirmation message
             withAnimation(.easeInOut(duration: 0.2)) {
                 showCopyConfirmation = true
@@ -507,6 +509,8 @@ struct ShotTile: View {
     
     private func shareImage() {
         guard let image = image else { return }
+        
+        AnalyticsService.shared.trackScreenshotShared(via: "native_share")
         
         // Create a sharing service picker
         let sharingService = NSSharingServicePicker(items: [image, item.url])
@@ -567,6 +571,10 @@ struct ShotTile: View {
             }
         }, completion: { success in
             DispatchQueue.main.async {
+                if success {
+                    AnalyticsService.shared.trackScreenshotShared(via: "share_link")
+                }
+                
                 // Always reset state flags, regardless of success/failure
                 self.isUploading = false
                 self.isSharing = false
@@ -898,6 +906,8 @@ struct ShotTile: View {
         }
         
         private func openQuickLook() {
+            AnalyticsService.shared.trackScreenshotOpened()
+            
             let urls = ScreenshotStore.shared.items.map { $0.url }
             if let index = ScreenshotStore.shared.items.firstIndex(where: { $0.id == item.id }) {
                 QuickLookPreviewController.shared.show(urls: urls, startAt: index)

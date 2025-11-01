@@ -6,6 +6,11 @@ options:
   developmentLanguage: en
   xcodeVersion: "15.0"
 
+packages:
+  TelemetryDeck:
+    url: https://github.com/TelemetryDeck/SwiftSDK
+    from: 2.3.0
+
 targets:
   Pickle:
     type: application
@@ -19,6 +24,9 @@ targets:
       - path: Sources/Assets.xcassets
     frameworks:
       - Quartz
+    dependencies:
+      - package: TelemetryDeck
+        product: TelemetryDeck
     settings:
       PRODUCT_BUNDLE_IDENTIFIER: com.pickle.app
       CODE_SIGN_STYLE: Automatic

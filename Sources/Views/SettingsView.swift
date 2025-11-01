@@ -9,6 +9,7 @@ struct SettingsView: View {
     @State private var isProcessing = false
     @State private var showErrorAlert = false
     @State private var errorMessage = ""
+    @AppStorage("pickle.analyticsEnabled") private var analyticsEnabled = true
     @Binding var isPresented: Bool
     
     var body: some View {
@@ -82,6 +83,7 @@ struct SettingsView: View {
                                 set: { newValue in
                                     launchAtLogin = newValue
                                     LaunchAtLoginService.shared.setEnabled(newValue)
+                                    AnalyticsService.shared.trackLaunchAtLoginChanged(enabled: newValue)
                                 }
                             ))
                             .toggleStyle(SwitchToggleStyle())
@@ -100,6 +102,9 @@ struct SettingsView: View {
                             Spacer()
                             Toggle("", isOn: $groupingEnabled)
                                 .toggleStyle(SwitchToggleStyle())
+                                .onChange(of: groupingEnabled) { _, newValue in
+                                    AnalyticsService.shared.trackGroupingChanged(enabled: newValue)
+                                }
                         }
                         .padding(.horizontal, 20)
                     }
@@ -164,10 +169,49 @@ struct SettingsView: View {
                         .padding(.horizontal, 20)
                 }
                 
+                // Privacy Section (always last)
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Privacy")
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 24)
+                    
+                    VStack(spacing: 12) {
+                        HStack(alignment: .top) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Help Improve Pickle")
+                                    .font(.body)
+                                    .foregroundColor(.primary)
+                                
+                                Text("Allow Pickle to send anonymous usage data to help us make it better.\n\nWe never collect screenshots, personal data, or file names — only general app usage statistics.\n\nAll information is anonymized, encrypted, and handled securely.")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .lineSpacing(2)
+                                
+                                Text("Powered by TelemetryDeck (GDPR compliant).")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary.opacity(0.8))
+                                    .padding(.top, 2)
+                            }
+                            Spacer()
+                            Toggle("", isOn: $analyticsEnabled)
+                                .toggleStyle(SwitchToggleStyle())
+                        }
+                        .padding(.horizontal, 20)
+                    }
+                    .padding(.bottom, 24)
+                }
+                
             }
         }
         .frame(minWidth: 400, maxWidth: 600)
         .onAppear {
+            // Track settings opened
+            AnalyticsService.shared.trackSettingsOpened()
+            
             // Sync launch at login state when view appears
             launchAtLogin = LaunchAtLoginService.shared.isEnabled()
         }
@@ -241,11 +285,16 @@ struct SettingsView: View {
     
     private func updateSystemScreenshotLocation() async throws {
         let folderURL = locationManager.recommendedScreenshotsFolder()
+        let currentLocation = locationManager.currentLocation()
         
         return try await withCheckedThrowingContinuation { continuation in
             DispatchQueue.global(qos: .userInitiated).async {
                 let success = self.locationManager.changeScreenshotLocation(to: folderURL)
                 if success {
+                    AnalyticsService.shared.trackScreenshotLocationChanged(
+                        from: currentLocation.lastPathComponent,
+                        to: folderURL.lastPathComponent
+                    )
                     continuation.resume()
                 } else {
                     continuation.resume(throwing: NSError(domain: "ScreenshotLocationError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to update system preferences"]))

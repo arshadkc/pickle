@@ -136,6 +136,9 @@ class RedactionService {
                         diagnostics.totalTime = CFAbsoluteTimeGetCurrent() - startTime
                         logDiagnostics(diagnostics)
                         
+                        // Track redaction success
+                        AnalyticsService.shared.trackRedactionPerformed(sensitiveItemsFound: hitCount)
+                        
                         NSLog("🎉 IN-PLACE REDACTION PIPELINE COMPLETED SUCCESSFULLY!")
                         await MainActor.run {
                             completion(.success(imageURL))
@@ -161,6 +164,9 @@ class RedactionService {
             } catch {
                 diagnostics.totalTime = CFAbsoluteTimeGetCurrent() - startTime
                 logDiagnostics(diagnostics)
+                
+                // Track redaction error
+                AnalyticsService.shared.trackError(error, context: "redaction_in_place")
                 
                 await MainActor.run {
                     completion(.failure(.redactionFailed(error.localizedDescription)))
@@ -258,6 +264,9 @@ class RedactionService {
                         diagnostics.totalTime = CFAbsoluteTimeGetCurrent() - startTime
                         logDiagnostics(diagnostics)
                         
+                        // Track redaction success
+                        AnalyticsService.shared.trackRedactionPerformed(sensitiveItemsFound: hitCount)
+                        
                         NSLog("🎉 REDACTION PIPELINE COMPLETED SUCCESSFULLY!")
                         await MainActor.run {
                             completion(.success(outputURL))
@@ -316,6 +325,9 @@ class RedactionService {
             } catch {
                 diagnostics.totalTime = CFAbsoluteTimeGetCurrent() - startTime
                 logDiagnostics(diagnostics)
+                
+                // Track redaction error
+                AnalyticsService.shared.trackError(error, context: "redaction_and_save")
                 
                 await MainActor.run {
                     completion(.failure(.redactionFailed(error.localizedDescription)))

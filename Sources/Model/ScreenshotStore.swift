@@ -58,6 +58,7 @@ class ScreenshotStore: ObservableObject {
                 DispatchQueue.main.async {
                     self.permissionDenied = true
                     self.permissionDeniedFolder = url.lastPathComponent
+                    AnalyticsService.shared.trackPermissionDenied(folder: url.lastPathComponent)
                 }
             }
         }
@@ -105,10 +106,11 @@ class ScreenshotStore: ObservableObject {
         guard !pendingUpdates.isEmpty else { return }
         
         DispatchQueue.main.async {
-            // Add all pending updates
+            // Track new screenshots
             for item in self.pendingUpdates {
                 if !self.items.contains(item) {
                     self.items.insert(item, at: 0)
+                    AnalyticsService.shared.trackScreenshotDetected()
                 }
             }
             
@@ -145,5 +147,6 @@ class ScreenshotStore: ObservableObject {
     
     func removeItem(with url: URL) {
         items.removeAll { $0.url == url }
+        AnalyticsService.shared.trackScreenshotDeleted()
     }
 }
