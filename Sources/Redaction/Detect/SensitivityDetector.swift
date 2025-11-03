@@ -95,10 +95,29 @@ public enum SensitivityDetector {
     
     // MARK: - Mention Detection
     
-    /// Detects @mentions using regex pattern
+    /// Detects @mentions using regex pattern, excluding email domains
     private static func detectMentions(in line: String) -> [Hit] {
         let pattern = "@[\\p{L}\\p{N}._-]+"
-        return detectWithRegex(pattern: pattern, in: line, kind: .mention)
+        let allMatches = detectWithRegex(pattern: pattern, in: line, kind: .mention)
+        
+        // Filter out matches that look like email domains (e.g., @gmail.com, @company.org)
+        // Real mentions typically don't have top-level domain extensions
+        return allMatches.filter { hit in
+            let matchedText = String(line[hit.textRange]).lowercased()
+            
+            // Common TLDs to exclude
+            let tlds = [".com", ".org", ".net", ".edu", ".gov", ".co", ".io", ".ai", 
+                       ".app", ".dev", ".uk", ".us", ".ca", ".de", ".fr", ".jp"]
+            
+            // If the mention ends with a TLD, it's likely an email domain, not a mention
+            for tld in tlds {
+                if matchedText.hasSuffix(tld) {
+                    return false
+                }
+            }
+            
+            return true
+        }
     }
     
     // MARK: - Channel Detection
@@ -154,8 +173,28 @@ public enum SensitivityDetector {
 
     /// Detects email addresses using regex as a fallback when NSDataDetector misses a pattern
     private static func detectEmailsWithRegex(in line: String) -> [Hit] {
-        let pattern = "(?xi)[A-Z0-9._%+-]+\\s*@\\s*[A-Z0-9.-]+\\s*\\.[A-Z]{2,}"
-        return detectWithRegex(pattern: pattern, in: line, kind: .email, options: [.caseInsensitive, .allowCommentsAndWhitespace])
+        var hits: [Hit] = []
+        
+        // Standard email pattern (full email) - includes underscore in domain part to handle OCR errors like "user@_gmail.com"
+        let fullEmailPattern = "(?xi)[A-Z0-9._%+-]+\\s*@\\s*_?\\s*[A-Z0-9._-]+\\s*\\.[A-Z]{2,}"
+        hits.append(contentsOf: detectWithRegex(pattern: fullEmailPattern, in: line, kind: .email, options: [.caseInsensitive, .allowCommentsAndWhitespace]))
+        
+        // Partial email pattern for OCR-split emails (e.g., "@gmail.com" when "arshadkc" was on a different line)
+        // This catches @domain.tld patterns that look like email domains but were missed by full email detection
+        let partialEmailPattern = "(?xi)@\\s*_?\\s*[A-Z0-9._-]+\\.[A-Z]{2,}(?![A-Z0-9._-])"
+        let partialHits = detectWithRegex(pattern: partialEmailPattern, in: line, kind: .email, options: [.caseInsensitive])
+        
+        // Only add partial email hits if they don't overlap with existing full email hits
+        for partialHit in partialHits {
+            let hasOverlap = hits.contains { existingHit in
+                existingHit.textRange.overlaps(partialHit.textRange)
+            }
+            if !hasOverlap {
+                hits.append(partialHit)
+            }
+        }
+        
+        return hits
     }
     
     /// Detects URLs using regex as a fallback when NSDataDetector misses URLs without protocols

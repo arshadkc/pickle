@@ -349,9 +349,15 @@ class RedactionService {
             // OCR
             NSLog("🔍 STARTING OCR...")
             let ocrStartTime = CFAbsoluteTimeGetCurrent()
-            let recognizedLines = try await textRecognizer.recognize(in: image, level: .fast)
+            let recognizedLines = try await textRecognizer.recognize(in: image, level: .accurate)
             diagnostics.ocrTime = CFAbsoluteTimeGetCurrent() - ocrStartTime
             NSLog("✅ OCR COMPLETED - Found \(recognizedLines.count) lines")
+            
+            // Log raw OCR output
+            NSLog("📝 RAW OCR OUTPUT:")
+            for (index, line) in recognizedLines.enumerated() {
+                NSLog("   Line \(index + 1): \"\(line.text)\"")
+            }
             
             // Detection
             let detectionStartTime = CFAbsoluteTimeGetCurrent()

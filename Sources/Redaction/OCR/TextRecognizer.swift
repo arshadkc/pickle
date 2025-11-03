@@ -57,7 +57,7 @@ public enum RecognitionLevel {
 public final class TextRecognizer {
     
     /// Minimum confidence threshold for accepting recognized text
-    private static let minimumConfidence: Float = 0.35
+    private static let minimumConfidence: Float = 0.25
     
     public init() {}
     

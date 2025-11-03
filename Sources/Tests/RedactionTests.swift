@@ -87,10 +87,26 @@ final class RedactionTests: XCTestCase {
             XCTAssertFalse(emailHits.isEmpty, "Should detect email: \(email)")
         }
         
+        // Test partial emails (OCR-split emails) - should be detected as emails
+        let partialEmails = [
+            "@gmail.com",
+            "@company.org",
+            "@domain.co.uk"
+        ]
+        
+        for partialEmail in partialEmails {
+            let hits = SensitivityDetector.detect(in: "Text: \(partialEmail)")
+            let emailHits = filterHits(hits, by: .email)
+            XCTAssertFalse(emailHits.isEmpty, "Should detect partial email: \(partialEmail)")
+            
+            // Make sure it's NOT detected as a mention
+            let mentionHits = filterHits(hits, by: .mention)
+            XCTAssertTrue(mentionHits.isEmpty, "Should not detect partial email as mention: \(partialEmail)")
+        }
+        
         // Test invalid emails (should not be detected)
         let invalidEmails = [
             "notanemail@",
-            "@domain.com",
             "user@",
             "just-text"
         ]
@@ -227,17 +243,35 @@ final class RedactionTests: XCTestCase {
     }
     
     func testMentionDetection() {
-        // Test @mentions
+        // Test @mentions (real mentions without TLDs)
         let mentions = [
             "@username",
             "@company",
-            "@gmail.com"
+            "@john_doe",
+            "@team-alpha"
         ]
         
         for mention in mentions {
             let hits = SensitivityDetector.detect(in: "Mention: \(mention)")
             let mentionHits = filterHits(hits, by: .mention)
             XCTAssertFalse(mentionHits.isEmpty, "Should detect mention: \(mention)")
+        }
+        
+        // Test that email domains are NOT detected as mentions
+        let notMentions = [
+            "@gmail.com",
+            "@company.org",
+            "@domain.io"
+        ]
+        
+        for notMention in notMentions {
+            let hits = SensitivityDetector.detect(in: "Text: \(notMention)")
+            let mentionHits = filterHits(hits, by: .mention)
+            XCTAssertTrue(mentionHits.isEmpty, "Should not detect email domain as mention: \(notMention)")
+            
+            // These should be detected as emails instead
+            let emailHits = filterHits(hits, by: .email)
+            XCTAssertFalse(emailHits.isEmpty, "Should detect email domain as email: \(notMention)")
         }
     }
     
