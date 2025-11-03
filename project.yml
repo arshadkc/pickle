@@ -43,6 +43,7 @@ targets:
         CFBundleVersion: "3"
         CFBundleShortVersionString: "1.1"
         LSMinimumSystemVersion: "14.0"
+        LSUIElement: true
         NSUserNotificationAlertStyle: alert
 
   PickleTests:
