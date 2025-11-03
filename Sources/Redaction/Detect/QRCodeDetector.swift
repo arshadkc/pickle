@@ -75,8 +75,8 @@ public final class QRCodeDetector {
         let pixelWidth = normalizedBox.width * imageSize.width
         let pixelHeight = normalizedBox.height * imageSize.height
         
-        // Add padding to ensure full QR code coverage (25%)
-        let padding = max(pixelWidth, pixelHeight) * 0.25
+        // Add very minimal padding to ensure full QR code coverage (5%)
+        let padding = max(pixelWidth, pixelHeight) * 0.05
         
         return CGRect(
             x: max(0, pixelX - padding),

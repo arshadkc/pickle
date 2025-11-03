@@ -63,16 +63,15 @@ public final class FaceDetector {
         let pixelWidth = normalizedBox.width * imageSize.width
         let pixelHeight = normalizedBox.height * imageSize.height
         
-        // Add moderate padding with minimum for small faces
-        // 40% padding for larger faces, but at least 50px for tiny faces
-        let percentagePadding = max(pixelWidth, pixelHeight) * 0.4
-        let padding = max(percentagePadding, 50.0)
+        // Add balanced padding - enough to cover full face but not nearby text
+        // 25% padding for faces, with minimum 20px
+        let percentagePadding = max(pixelWidth, pixelHeight) * 0.25
+        let padding = max(percentagePadding, 20.0)
         
-        // This ensures:
-        // - Big face (200px): 80px padding = 360px blur
-        // - Medium face (100px): 50px padding = 200px blur
-        // - Small face (30px): 50px padding = 130px blur
-        // - Tiny face (15px): 50px padding = 115px blur
+        // This ensures full face coverage:
+        // - Big face (200px): 50px padding = 300px blur
+        // - Medium face (100px): 25px padding = 150px blur
+        // - Small face (30px): 20px padding = 70px blur
         
         return CGRect(
             x: max(0, pixelX - padding),

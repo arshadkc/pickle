@@ -50,15 +50,15 @@ public final class ImageRegionDetector {
                 let objects = observation.salientObjects ?? []
                 
                 let rects = objects.compactMap { object -> CGRect? in
-                    // Very low confidence threshold to catch small profile pictures
-                    guard object.confidence > 0.15 else { return nil }
+                    // Higher confidence threshold to reduce false positives
+                    guard object.confidence > 0.5 else { return nil }
                     
                     let normalizedBox = object.boundingBox
                     
-                    // Accept VERY small regions (tiny avatars) and larger regions (embedded photos)
-                    // 0.0001 = ~1% of image area (can catch 32x32 avatars in a 1000x1000 screenshot)
+                    // More conservative area range - focus on actual photos/avatars
+                    // 0.001 = small avatars, 0.3 = large embedded photos
                     let area = normalizedBox.width * normalizedBox.height
-                    guard area > 0.0001 && area < 0.8 else { return nil }
+                    guard area > 0.001 && area < 0.3 else { return nil }
                     
                     NSLog("🖼️ Saliency object: confidence=\(object.confidence), area=\(area), box=\(normalizedBox)")
                     
@@ -99,12 +99,12 @@ public final class ImageRegionDetector {
                 let objects = observation.salientObjects ?? []
                 
                 let rects = objects.compactMap { object -> CGRect? in
-                    // Very low threshold to catch more potential profile pictures
-                    guard object.confidence > 0.15 else { return nil }
+                    // Higher threshold to reduce false positives
+                    guard object.confidence > 0.6 else { return nil }
                     
                     let normalizedBox = object.boundingBox
                     let area = normalizedBox.width * normalizedBox.height
-                    guard area > 0.0001 && area < 0.8 else { return nil }
+                    guard area > 0.001 && area < 0.3 else { return nil }
                     
                     NSLog("🎯 Attention object: confidence=\(object.confidence), area=\(area), box=\(normalizedBox)")
                     
@@ -161,16 +161,15 @@ public final class ImageRegionDetector {
         let pixelWidth = normalizedBox.width * imageSize.width
         let pixelHeight = normalizedBox.height * imageSize.height
         
-        // Add moderate padding with minimum for small avatars
-        // 40% padding for larger images, but at least 40px for tiny avatars
-        let percentagePadding = max(pixelWidth, pixelHeight) * 0.4
-        let padding = max(percentagePadding, 40.0)
+        // Add tight padding - just enough for circular avatars and image edges
+        // 10% padding for images, with minimum 8px
+        let percentagePadding = max(pixelWidth, pixelHeight) * 0.1
+        let padding = max(percentagePadding, 8.0)
         
-        // This ensures:
-        // - Big image (100px): 40px padding = 180px blur
-        // - Medium image (50px): 40px padding = 130px blur
-        // - Small avatar (20px): 40px padding = 100px blur
-        // - Tiny avatar (10px): 40px padding = 90px blur
+        // This ensures coverage without extending too far:
+        // - Big image (100px): 10px padding = 120px blur
+        // - Medium image (50px): 8px padding = 66px blur
+        // - Small avatar (20px): 8px padding = 36px blur
         
         return CGRect(
             x: max(0, pixelX - padding),
