@@ -131,7 +131,7 @@ struct SettingsView: View {
                                     .font(.body)
                                     .foregroundColor(.primary)
                                 
-                                Text("Uses built-in AI to detect and redact faces, profile pictures, passwords, credit cards, and QR codes. All processing happens on your device.")
+                                Text("Attempts to detect and redact faces, profile pictures, passwords, credit cards, and QR codes using built-in AI. Detection may not catch very small images or all content types. All processing happens on your device.")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                                     .fixedSize(horizontal: false, vertical: true)
