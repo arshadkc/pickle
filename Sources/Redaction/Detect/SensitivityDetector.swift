@@ -60,9 +60,12 @@ public enum SensitivityDetector {
     /// - Parameters:
     ///   - line: The text line to analyze
     ///   - customTerms: Array of custom terms to detect (case-insensitive, fuzzy matching)
+    ///   - advancedDetectionEnabled: Enable AI-powered detection (names, passwords, credit cards)
     /// - Returns: Array of Hit objects representing detected sensitive content
-    public static func detect(in line: String, customTerms: [String] = []) -> [Hit] {
+    public static func detect(in line: String, customTerms: [String] = [], advancedDetectionEnabled: Bool = false) -> [Hit] {
         var hits: [Hit] = []
+        
+        // BASIC DETECTION (Always enabled)
         
         // Detect mentions (@username)
         hits.append(contentsOf: detectMentions(in: line))
@@ -82,12 +85,21 @@ public enum SensitivityDetector {
         // Fallback numeric detector for digit-only sequences (e.g., loose phone numbers)
         hits.append(contentsOf: detectNumericSequences(in: line))
         
-        // Detect personal and organization names using NLTagger
-        // DISABLED: Causes false positives on common words like "Team", "Days"
-        // hits.append(contentsOf: detectNames(in: line))
-        
         // Detect custom terms with fuzzy matching
         hits.append(contentsOf: detectCustomTerms(in: line, customTerms: customTerms))
+        
+        // ADVANCED DETECTION (Optional - only when enabled)
+        
+        if advancedDetectionEnabled {
+            // Note: Name detection is disabled due to too many false positives with NLTagger
+            // Advanced detection focuses on: faces, images, QR codes, passwords, credit cards
+            
+            // Detect passwords
+            hits.append(contentsOf: PasswordDetector.detect(in: line))
+            
+            // Detect credit card numbers
+            hits.append(contentsOf: CreditCardDetector.detect(in: line))
+        }
         
         // Deduplicate overlapping hits and sort hits by position in the text
         return deduplicateHits(hits).sorted { $0.textRange.lowerBound < $1.textRange.lowerBound }
@@ -95,10 +107,69 @@ public enum SensitivityDetector {
     
     // MARK: - Mention Detection
     
-    /// Detects @mentions using regex pattern
+    /// Detects @mentions using regex pattern, excluding email domains
+    /// Handles multi-word mentions like "@john Beadle" or "@John Smith"
     private static func detectMentions(in line: String) -> [Hit] {
-        let pattern = "@[\\p{L}\\p{N}._-]+"
-        return detectWithRegex(pattern: pattern, in: line, kind: .mention)
+        var hits: [Hit] = []
+        
+        // Pattern 1: Simple mentions without spaces (e.g., @username, @john_doe)
+        let simplePattern = "@[\\p{L}\\p{N}._-]+"
+        let simpleMatches = detectWithRegex(pattern: simplePattern, in: line, kind: .mention)
+        
+        // Pattern 2: Mentions with names (e.g., "@john Beadle", "@John Smith")
+        // Matches @ followed by capitalized words with optional spaces
+        let namePattern = "@[\\p{L}\\p{N}._-]+(?:\\s+[A-Z][a-z]+)+"
+        let nameMatches = detectWithRegex(pattern: namePattern, in: line, kind: .mention)
+        
+        // Combine both patterns
+        hits.append(contentsOf: simpleMatches)
+        hits.append(contentsOf: nameMatches)
+        
+        // Filter out matches that look like email domains (e.g., @gmail.com, @company.org)
+        // Real mentions typically don't have top-level domain extensions
+        let filtered = hits.filter { hit in
+            let matchedText = String(line[hit.textRange]).lowercased()
+            
+            // Common TLDs to exclude
+            let tlds = [".com", ".org", ".net", ".edu", ".gov", ".co", ".io", ".ai", 
+                       ".app", ".dev", ".uk", ".us", ".ca", ".de", ".fr", ".jp"]
+            
+            // If the mention ends with a TLD, it's likely an email domain, not a mention
+            for tld in tlds {
+                if matchedText.hasSuffix(tld) {
+                    return false
+                }
+            }
+            
+            return true
+        }
+        
+        // Deduplicate overlapping hits (namePattern might overlap with simplePattern)
+        return deduplicateOverlappingMentions(filtered)
+    }
+    
+    /// Deduplicates overlapping mention hits, keeping the longer one
+    private static func deduplicateOverlappingMentions(_ hits: [Hit]) -> [Hit] {
+        var unique: [Hit] = []
+        let sorted = hits.sorted { $0.textRange.lowerBound < $1.textRange.lowerBound }
+        
+        for hit in sorted {
+            // Check if this hit overlaps with the last one
+            if let last = unique.last, last.textRange.overlaps(hit.textRange) {
+                // Keep the longer one (multi-word mention vs single-word)
+                // Compare range sizes by counting distance between bounds
+                let lastSize = last.textRange.upperBound.encodedOffset - last.textRange.lowerBound.encodedOffset
+                let hitSize = hit.textRange.upperBound.encodedOffset - hit.textRange.lowerBound.encodedOffset
+                
+                if hitSize > lastSize {
+                    unique[unique.count - 1] = hit
+                }
+            } else {
+                unique.append(hit)
+            }
+        }
+        
+        return unique
     }
     
     // MARK: - Channel Detection
@@ -154,8 +225,28 @@ public enum SensitivityDetector {
 
     /// Detects email addresses using regex as a fallback when NSDataDetector misses a pattern
     private static func detectEmailsWithRegex(in line: String) -> [Hit] {
-        let pattern = "(?xi)[A-Z0-9._%+-]+\\s*@\\s*[A-Z0-9.-]+\\s*\\.[A-Z]{2,}"
-        return detectWithRegex(pattern: pattern, in: line, kind: .email, options: [.caseInsensitive, .allowCommentsAndWhitespace])
+        var hits: [Hit] = []
+        
+        // Standard email pattern (full email) - includes underscore in domain part to handle OCR errors like "user@_gmail.com"
+        let fullEmailPattern = "(?xi)[A-Z0-9._%+-]+\\s*@\\s*_?\\s*[A-Z0-9._-]+\\s*\\.[A-Z]{2,}"
+        hits.append(contentsOf: detectWithRegex(pattern: fullEmailPattern, in: line, kind: .email, options: [.caseInsensitive, .allowCommentsAndWhitespace]))
+        
+        // Partial email pattern for OCR-split emails (e.g., "@gmail.com" when "arshadkc" was on a different line)
+        // This catches @domain.tld patterns that look like email domains but were missed by full email detection
+        let partialEmailPattern = "(?xi)@\\s*_?\\s*[A-Z0-9._-]+\\.[A-Z]{2,}(?![A-Z0-9._-])"
+        let partialHits = detectWithRegex(pattern: partialEmailPattern, in: line, kind: .email, options: [.caseInsensitive])
+        
+        // Only add partial email hits if they don't overlap with existing full email hits
+        for partialHit in partialHits {
+            let hasOverlap = hits.contains { existingHit in
+                existingHit.textRange.overlaps(partialHit.textRange)
+            }
+            if !hasOverlap {
+                hits.append(partialHit)
+            }
+        }
+        
+        return hits
     }
     
     /// Detects URLs using regex as a fallback when NSDataDetector misses URLs without protocols
@@ -300,16 +391,35 @@ public enum SensitivityDetector {
 
     // MARK: - Name Detection
     
-    /// Detects personal and organization names using NLTagger
+    /// Detects personal and organization names using NLTagger (Apple's AI)
+    /// Note: May miss some names in informal text, but won't have false positives
     private static func detectNames(in line: String) -> [Hit] {
         var hits: [Hit] = []
+        
+        // Skip very short lines
+        guard line.count >= 3 else { return hits }
         
         let tagger = NLTagger(tagSchemes: [.nameType])
         tagger.string = line
         
         let range = line.startIndex..<line.endIndex
-        tagger.enumerateTags(in: range, unit: .word, scheme: .nameType) { tag, tokenRange in
+        
+        // Use .word unit for better name detection
+        let options: NLTagger.Options = [.omitWhitespace, .omitPunctuation, .joinNames]
+        
+        tagger.enumerateTags(in: range, unit: .word, scheme: .nameType, options: options) { tag, tokenRange in
             guard let tag = tag else { return true }
+            
+            let detectedText = String(line[tokenRange])
+            
+            // Skip single-letter names (likely initials or noise)
+            guard detectedText.count > 1 else { return true }
+            
+            // Skip common false positives that NLTagger sometimes flags
+            let skipWords = ["team", "days", "today", "yesterday", "tomorrow", "week", "month", "year", "time"]
+            if skipWords.contains(detectedText.lowercased()) {
+                return true
+            }
             
             let kind: Kind
             switch tag {

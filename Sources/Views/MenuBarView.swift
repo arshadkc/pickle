@@ -132,6 +132,9 @@ struct ShotTile: View {
                                         self.uploadPhase = nil
                                     }
                                 }
+                            },
+                            onShowMenu: { location in
+                                showContextMenu(at: location)
                             }
                         )
                     }
@@ -417,39 +420,6 @@ struct ShotTile: View {
             }
             
             return itemProvider
-        }
-        .contextMenu {
-            Button("Copy Image", action: copyImageToClipboard)
-                .keyboardShortcut("c", modifiers: .command)
-            
-            Button("Copy Path", action: copyPathToClipboard)
-                .keyboardShortcut("c", modifiers: [.command, .shift])
-            
-            Button("Reveal in Finder", action: showInFinder)
-                .keyboardShortcut("r", modifiers: .command)
-            
-            Divider()
-            
-            Menu("Redact") {
-                Button("Redact this image", action: redactInPlace)
-                    .keyboardShortcut("r", modifiers: [.command, .option])
-                    .disabled(isRedacting)
-                
-                Button("Redact a copy", action: redactAndSave)
-                    .keyboardShortcut("r", modifiers: [.command, .shift])
-                    .disabled(isRedacting)
-            }
-            
-            Divider()
-            
-            Button(action: shareLink) {
-                Label("Share Link", systemImage: "link")
-            }
-            .keyboardShortcut("l", modifiers: .command)
-            .disabled(isSharing || isUploading)
-            
-            Button("Share...", action: shareImage)
-                .keyboardShortcut("s", modifiers: .command)
         }
     }
     
@@ -799,6 +769,78 @@ struct ShotTile: View {
         }
     }
     
+        private func createContextMenu() -> NSMenu {
+            // Create a handler to bridge SwiftUI closures to NSMenu
+            let handler = MenuHandler()
+            handler.actions["copyImage"] = copyImageToClipboard
+            handler.actions["copyPath"] = copyPathToClipboard
+            handler.actions["revealInFinder"] = showInFinder
+            handler.actions["redactInPlace"] = redactInPlace
+            handler.actions["redactCopy"] = redactAndSave
+            handler.actions["shareLink"] = shareLink
+            handler.actions["share"] = shareImage
+            
+            let menu = NSMenu()
+            
+            let copyImageItem = NSMenuItem(title: "Copy Image", action: #selector(MenuHandler.handle(_:)), keyEquivalent: "c")
+            copyImageItem.target = handler
+            copyImageItem.representedObject = "copyImage"
+            menu.addItem(copyImageItem)
+            
+            let copyPathItem = NSMenuItem(title: "Copy Path", action: #selector(MenuHandler.handle(_:)), keyEquivalent: "")
+            copyPathItem.target = handler
+            copyPathItem.representedObject = "copyPath"
+            menu.addItem(copyPathItem)
+            
+            let revealItem = NSMenuItem(title: "Reveal in Finder", action: #selector(MenuHandler.handle(_:)), keyEquivalent: "r")
+            revealItem.target = handler
+            revealItem.representedObject = "revealInFinder"
+            menu.addItem(revealItem)
+            
+            menu.addItem(NSMenuItem.separator())
+            
+            // Redact submenu
+            let redactMenu = NSMenu()
+            let redactInPlaceItem = NSMenuItem(title: "Redact this image", action: #selector(MenuHandler.handle(_:)), keyEquivalent: "")
+            redactInPlaceItem.target = handler
+            redactInPlaceItem.representedObject = "redactInPlace"
+            redactInPlaceItem.isEnabled = !isRedacting
+            redactMenu.addItem(redactInPlaceItem)
+            
+            let redactCopyItem = NSMenuItem(title: "Redact a copy", action: #selector(MenuHandler.handle(_:)), keyEquivalent: "")
+            redactCopyItem.target = handler
+            redactCopyItem.representedObject = "redactCopy"
+            redactCopyItem.isEnabled = !isRedacting
+            redactMenu.addItem(redactCopyItem)
+            
+            let redactMenuItem = NSMenuItem(title: "Redact", action: nil, keyEquivalent: "")
+            redactMenuItem.submenu = redactMenu
+            menu.addItem(redactMenuItem)
+            
+            menu.addItem(NSMenuItem.separator())
+            
+            let shareLinkItem = NSMenuItem(title: "Share Link", action: #selector(MenuHandler.handle(_:)), keyEquivalent: "l")
+            shareLinkItem.target = handler
+            shareLinkItem.representedObject = "shareLink"
+            shareLinkItem.isEnabled = !isSharing && !isUploading
+            menu.addItem(shareLinkItem)
+            
+            let shareItem = NSMenuItem(title: "Share...", action: #selector(MenuHandler.handle(_:)), keyEquivalent: "s")
+            shareItem.target = handler
+            shareItem.representedObject = "share"
+            menu.addItem(shareItem)
+            
+            // Store handler reference to keep it alive during menu display
+            objc_setAssociatedObject(menu, "handler", handler, .OBJC_ASSOCIATION_RETAIN)
+            
+            return menu
+        }
+        
+        private func showContextMenu(at location: NSPoint) {
+            let menu = createContextMenu()
+            menu.popUp(positioning: nil, at: location, in: nil)
+        }
+    
         private func deleteScreenshot() {
             // Start deletion animation with more dramatic effect
             withAnimation(.easeInOut(duration: 0.25)) {
@@ -1000,6 +1042,7 @@ struct HoverActionBar: View {
     let onDelete: () -> Void
     let onPreview: () -> Void
     let onCancel: () -> Void
+    let onShowMenu: (NSPoint) -> Void
     
     var body: some View {
         HStack(spacing: 8) {
@@ -1038,7 +1081,7 @@ struct HoverActionBar: View {
             
             Spacer()
             
-            // Right side: Always show Preview
+            // Center: Preview
             Button(action: onPreview) {
                 Image(systemName: "eye")
                     .font(.system(size: 10, weight: .medium))
@@ -1047,6 +1090,28 @@ struct HoverActionBar: View {
                     .background(
                         Circle()
                             .fill(Color.blue.opacity(0.85))
+                            .shadow(color: .black.opacity(0.25), radius: 6, x: 0, y: 2)
+                    )
+            }
+            .buttonStyle(PlainButtonStyle())
+            .scaleEffect(isHovered ? 1.05 : 1.0)
+            .animation(.spring(response: 0.25, dampingFraction: 0.8), value: isHovered)
+            
+            Spacer()
+            
+            // Right side: More menu (shows context menu)
+            Button(action: {
+                // Get the current mouse location for menu positioning
+                let mouseLocation = NSEvent.mouseLocation
+                onShowMenu(mouseLocation)
+            }) {
+                Image(systemName: "ellipsis")
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(.white)
+                    .frame(width: 20, height: 20)
+                    .background(
+                        Circle()
+                            .fill(Color.gray.opacity(0.85))
                             .shadow(color: .black.opacity(0.25), radius: 6, x: 0, y: 2)
                     )
             }
@@ -1344,19 +1409,6 @@ struct MenuBarView: View {
                 }
             }
         }
-            .contextMenu {
-                Button("Settings...") {
-                    withAnimation(.easeInOut(duration: 0.25)) {
-                        showSettings.toggle()
-                    }
-                }
-                
-                Divider()
-                
-                Button("Quit Pickle") {
-                    NSApplication.shared.terminate(nil)
-                }
-            }
         }
     }
     
@@ -1412,6 +1464,20 @@ struct MenuBarView: View {
             return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "error"
         } catch {
             return "error: \(error)"
+        }
+    }
+}
+
+// MARK: - Menu Handler
+
+/// Helper class to handle menu actions from NSMenuItem
+class MenuHandler: NSObject {
+    var actions: [String: () -> Void] = [:]
+    
+    @objc func handle(_ sender: NSMenuItem) {
+        if let actionKey = sender.representedObject as? String,
+           let action = actions[actionKey] {
+            action()
         }
     }
 }

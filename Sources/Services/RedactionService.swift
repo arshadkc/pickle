@@ -349,16 +349,25 @@ class RedactionService {
             // OCR
             NSLog("🔍 STARTING OCR...")
             let ocrStartTime = CFAbsoluteTimeGetCurrent()
-            let recognizedLines = try await textRecognizer.recognize(in: image, level: .fast)
+            let recognizedLines = try await textRecognizer.recognize(in: image, level: .accurate)
             diagnostics.ocrTime = CFAbsoluteTimeGetCurrent() - ocrStartTime
             NSLog("✅ OCR COMPLETED - Found \(recognizedLines.count) lines")
             
+            // Log raw OCR output
+            NSLog("📝 RAW OCR OUTPUT:")
+            for (index, line) in recognizedLines.enumerated() {
+                NSLog("   Line \(index + 1): \"\(line.text)\"")
+            }
+            
             // Detection
             let detectionStartTime = CFAbsoluteTimeGetCurrent()
+            let advancedDetectionEnabled = RedactionSettings.shared.advancedDetectionEnabled
+            NSLog("🎯 Advanced Detection: \(advancedDetectionEnabled ? "ENABLED" : "DISABLED")")
+            
             var allHits: [[Hit]] = []
             var totalHits = 0
             for line in recognizedLines {
-                let hits = SensitivityDetector.detect(in: line.text)
+                let hits = SensitivityDetector.detect(in: line.text, advancedDetectionEnabled: advancedDetectionEnabled)
                 allHits.append(hits)
                 totalHits += hits.count
             }
@@ -369,9 +378,36 @@ class RedactionService {
             logDetectedContent(recognizedLines, allHits)
             NSLog("✅ DETECTED CONTENT LOGGING COMPLETED")
             
-            // Region building
+            // Region building from text hits
             let regionStartTime = CFAbsoluteTimeGetCurrent()
-            let regions = RegionBuilder.regions(for: recognizedLines, hits: allHits, padding: 2)
+            var regions = RegionBuilder.regions(for: recognizedLines, hits: allHits, padding: 2)
+            
+            // Advanced detection: Add image-based regions (faces, QR codes, images)
+            if advancedDetectionEnabled {
+                NSLog("🔍 RUNNING ADVANCED IMAGE DETECTION...")
+                
+                // Image region detection (profile pictures, embedded photos)
+                let imageDetector = ImageRegionDetector()
+                if let imageRects = try? await imageDetector.detectImageRegions(in: image) {
+                    NSLog("🖼️ Found \(imageRects.count) image regions (photos/avatars)")
+                    regions.append(contentsOf: imageRects)
+                }
+                
+                // Face detection (as fallback for photos)
+                let faceDetector = FaceDetector()
+                if let faceRects = try? await faceDetector.detectFaces(in: image) {
+                    NSLog("👤 Found \(faceRects.count) faces")
+                    regions.append(contentsOf: faceRects)
+                }
+                
+                // QR code and barcode detection
+                let qrDetector = QRCodeDetector()
+                if let qrRects = try? await qrDetector.detectQRCodesAndBarcodes(in: image) {
+                    NSLog("📱 Found \(qrRects.count) QR codes/barcodes")
+                    regions.append(contentsOf: qrRects)
+                }
+            }
+            
             diagnostics.regionMergeTime = CFAbsoluteTimeGetCurrent() - regionStartTime
             
             // Redaction

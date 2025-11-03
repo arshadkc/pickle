@@ -84,6 +84,10 @@ final class AnalyticsService {
         signal("settings.grouping", parameters: ["enabled": String(enabled)])
     }
     
+    func trackAdvancedDetectionChanged(enabled: Bool) {
+        signal("settings.advanced_detection", parameters: ["enabled": String(enabled)])
+    }
+    
     func trackScreenshotLocationChanged(from: String, to: String) {
         signal("settings.location_changed", parameters: [
             "from_location": from,
