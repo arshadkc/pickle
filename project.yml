@@ -40,8 +40,8 @@ targets:
         CFBundleName: PickleApp
         CFBundleDisplayName: PickleApp
         CFBundleIdentifier: app.pickleformac.pickle
-        CFBundleVersion: "2"
-        CFBundleShortVersionString: "1.0"
+        CFBundleVersion: "3"
+        CFBundleShortVersionString: "1.1"
         LSMinimumSystemVersion: "14.0"
         NSUserNotificationAlertStyle: alert
 
