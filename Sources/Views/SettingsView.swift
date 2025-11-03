@@ -3,6 +3,7 @@ import AppKit
 
 struct SettingsView: View {
     @ObservedObject private var locationManager = ScreenshotLocationManager.shared
+    @ObservedObject private var redactionSettings = RedactionSettings.shared
     @AppStorage("pickle.groupingEnabled") private var groupingEnabled = true
     @State private var launchAtLogin = false
     @State private var showLocationUpdateConfirmation = false
@@ -104,6 +105,43 @@ struct SettingsView: View {
                                 .toggleStyle(SwitchToggleStyle())
                                 .onChange(of: groupingEnabled) { _, newValue in
                                     AnalyticsService.shared.trackGroupingChanged(enabled: newValue)
+                                }
+                        }
+                        .padding(.horizontal, 20)
+                    }
+                    .padding(.bottom, 24)
+                }
+                
+                Divider()
+                    .padding(.horizontal, 20)
+                
+                // Redaction Section
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Redaction")
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 24)
+                    
+                    VStack(spacing: 12) {
+                        HStack(alignment: .top) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Advanced Detection")
+                                    .font(.body)
+                                    .foregroundColor(.primary)
+                                
+                                Text("Uses built-in AI to detect and redact faces, profile pictures, passwords, credit cards, and QR codes. All processing happens on your device.")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .lineSpacing(2)
+                            }
+                            Spacer()
+                            Toggle("", isOn: $redactionSettings.advancedDetectionEnabled)
+                                .toggleStyle(SwitchToggleStyle())
+                                .onChange(of: redactionSettings.advancedDetectionEnabled) { _, newValue in
+                                    AnalyticsService.shared.trackAdvancedDetectionChanged(enabled: newValue)
                                 }
                         }
                         .padding(.horizontal, 20)

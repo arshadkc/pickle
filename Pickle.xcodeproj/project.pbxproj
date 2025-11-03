@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 63;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -17,6 +17,7 @@
 		69234BC08CC54DADD3945D22 /* TextRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C04676A67F105943C579F057 /* TextRecognizer.swift */; };
 		78B8BE6361766030DE06DEA9 /* ShareLinkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C0CDACA7EF5B219911F9ABA /* ShareLinkManager.swift */; };
 		79F13998C25A724FFECD6281 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466965AF2013332E81FCE09B /* MenuBarView.swift */; };
+		7EFD4DF8B26DE2B64E5BCE83 /* CreditCardDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = A39555E7F9513A414F555954 /* CreditCardDetector.swift */; };
 		85ABF5A38C53AB12797A37DF /* PickleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534516AA342599C25AD7E3D6 /* PickleApp.swift */; };
 		8B3A205130BF927E10CABB63 /* ScreenshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D14BE45CE3D6843594B9F5D /* ScreenshotStore.swift */; };
 		8BDF58D67678B67EB134A464 /* Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF51D3511DD32CC818F1C1F /* Toast.swift */; };
@@ -24,11 +25,16 @@
 		9E215C2DA47C997B075C8081 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E077091C50CEA3FF3B5ADE68 /* Assets.xcassets */; };
 		A2A04F146B667DF64B786C8B /* QuickLookPreviewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C7EB57F8E4716774F1C6045 /* QuickLookPreviewController.swift */; };
 		A33C24DF1A4B4C3B0EFC9294 /* ImageRedactor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1991618B6421D2784953FADE /* ImageRedactor.swift */; };
+		A555E47A4A1E6D4B2A4D8F8D /* RedactionSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10821A3C84674A06698131C0 /* RedactionSettings.swift */; };
+		A7A13EA565353E90641EE512 /* QRCodeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6781756BC8A4FFFD659C0A47 /* QRCodeDetector.swift */; };
 		B25393EC60CCCF9333D9D529 /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE899601B1B6C5502DA06D9D /* AnalyticsService.swift */; };
 		B5D77B6B099E1FB34C69ACB9 /* LaunchAtLoginService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8753957802A59CCD0F597C6B /* LaunchAtLoginService.swift */; };
 		BBD1767610179124FE4B1AAA /* RedactionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 900134AA9619665D552EC159 /* RedactionService.swift */; };
 		D3B27AEC7A13614BC041A8FD /* ScreenshotFolderResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5048F7DFA271A533E60C6A9 /* ScreenshotFolderResolver.swift */; };
+		E590B287C290A4379ED0081D /* FaceDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3FC26FB3C62063B46A97DF /* FaceDetector.swift */; };
 		E93934ABDE50C2D6A2141AFB /* ScreenshotLocationPromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D517B04C5636C890921DB20 /* ScreenshotLocationPromptView.swift */; };
+		EEC429BFF94C3F9EBBF64509 /* ImageRegionDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C627490BCC3BF29D10A9901 /* ImageRegionDetector.swift */; };
+		FAA49E1B73DC86B413CF8199 /* PasswordDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6154166F387BE9409CE24EAA /* PasswordDetector.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -42,6 +48,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0A3FC26FB3C62063B46A97DF /* FaceDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceDetector.swift; sourceTree = "<group>"; };
+		10821A3C84674A06698131C0 /* RedactionSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedactionSettings.swift; sourceTree = "<group>"; };
 		1991618B6421D2784953FADE /* ImageRedactor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRedactor.swift; sourceTree = "<group>"; };
 		1D517B04C5636C890921DB20 /* ScreenshotLocationPromptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotLocationPromptView.swift; sourceTree = "<group>"; };
 		22BB3C1DDAEBF71B36223E1D /* RegionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegionBuilder.swift; sourceTree = "<group>"; };
@@ -49,9 +57,12 @@
 		4C0CDACA7EF5B219911F9ABA /* ShareLinkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareLinkManager.swift; sourceTree = "<group>"; };
 		534516AA342599C25AD7E3D6 /* PickleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickleApp.swift; sourceTree = "<group>"; };
 		5E36B97967045314E2980941 /* Pickle.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Pickle.entitlements; sourceTree = "<group>"; };
+		6154166F387BE9409CE24EAA /* PasswordDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasswordDetector.swift; sourceTree = "<group>"; };
 		66172908FD6DC2DA511451EF /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		6781756BC8A4FFFD659C0A47 /* QRCodeDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeDetector.swift; sourceTree = "<group>"; };
 		67A7671EAD472442703B36E5 /* ScreenshotLocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotLocationManager.swift; sourceTree = "<group>"; };
 		6AF51D3511DD32CC818F1C1F /* Toast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toast.swift; sourceTree = "<group>"; };
+		6C627490BCC3BF29D10A9901 /* ImageRegionDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRegionDetector.swift; sourceTree = "<group>"; };
 		8753957802A59CCD0F597C6B /* LaunchAtLoginService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginService.swift; sourceTree = "<group>"; };
 		8D14BE45CE3D6843594B9F5D /* ScreenshotStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotStore.swift; sourceTree = "<group>"; };
 		900134AA9619665D552EC159 /* RedactionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedactionService.swift; sourceTree = "<group>"; };
@@ -59,6 +70,7 @@
 		944C76F6691E559C153A4DAC /* RedactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedactionTests.swift; sourceTree = "<group>"; };
 		9C7EB57F8E4716774F1C6045 /* QuickLookPreviewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickLookPreviewController.swift; sourceTree = "<group>"; };
 		9FADF69DC42C78EA8EFDEE5E /* PickleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PickleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A39555E7F9513A414F555954 /* CreditCardDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreditCardDetector.swift; sourceTree = "<group>"; };
 		A95E61B4E27793C88D369C39 /* DirectoryWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryWatcher.swift; sourceTree = "<group>"; };
 		B5048F7DFA271A533E60C6A9 /* ScreenshotFolderResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotFolderResolver.swift; sourceTree = "<group>"; };
 		BC0CCDB99D7EE6F281F2B83F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -110,6 +122,7 @@
 		288D42790E3C17FEF8519E6F /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				10821A3C84674A06698131C0 /* RedactionSettings.swift */,
 				8D14BE45CE3D6843594B9F5D /* ScreenshotStore.swift */,
 			);
 			path = Model;
@@ -127,6 +140,11 @@
 		2C596A39DDD2D1F129257A85 /* Detect */ = {
 			isa = PBXGroup;
 			children = (
+				A39555E7F9513A414F555954 /* CreditCardDetector.swift */,
+				0A3FC26FB3C62063B46A97DF /* FaceDetector.swift */,
+				6C627490BCC3BF29D10A9901 /* ImageRegionDetector.swift */,
+				6154166F387BE9409CE24EAA /* PasswordDetector.swift */,
+				6781756BC8A4FFFD659C0A47 /* QRCodeDetector.swift */,
 				22BB3C1DDAEBF71B36223E1D /* RegionBuilder.swift */,
 				EE3E9054364A1332552CBB7F /* SensitivityDetector.swift */,
 			);
@@ -250,6 +268,11 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					253AD4C7EB308D46442FB3F8 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
 			};
 			buildConfigurationList = 858CF7F293620E860635766B /* Build configuration list for PBXProject "Pickle" */;
 			compatibilityVersion = "Xcode 14.0";
@@ -264,6 +287,7 @@
 			packageReferences = (
 				6BF3A199A58F66EACFC5BD5F /* XCRemoteSwiftPackageReference "SwiftSDK" */,
 			);
+			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -298,14 +322,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				B25393EC60CCCF9333D9D529 /* AnalyticsService.swift in Sources */,
+				7EFD4DF8B26DE2B64E5BCE83 /* CreditCardDetector.swift in Sources */,
 				5BC8F0CEC2E7F0E7CC5897F1 /* DirectoryWatcher.swift in Sources */,
+				E590B287C290A4379ED0081D /* FaceDetector.swift in Sources */,
 				A33C24DF1A4B4C3B0EFC9294 /* ImageRedactor.swift in Sources */,
+				EEC429BFF94C3F9EBBF64509 /* ImageRegionDetector.swift in Sources */,
 				B5D77B6B099E1FB34C69ACB9 /* LaunchAtLoginService.swift in Sources */,
 				79F13998C25A724FFECD6281 /* MenuBarView.swift in Sources */,
+				FAA49E1B73DC86B413CF8199 /* PasswordDetector.swift in Sources */,
 				85ABF5A38C53AB12797A37DF /* PickleApp.swift in Sources */,
+				A7A13EA565353E90641EE512 /* QRCodeDetector.swift in Sources */,
 				A2A04F146B667DF64B786C8B /* QuickLookPreviewController.swift in Sources */,
 				0FAB23981C8EF7EA1D06B6EF /* QuitConfirm.swift in Sources */,
 				BBD1767610179124FE4B1AAA /* RedactionService.swift in Sources */,
+				A555E47A4A1E6D4B2A4D8F8D /* RedactionSettings.swift in Sources */,
 				26558C2C6DBBE818D5F214DF /* RegionBuilder.swift in Sources */,
 				D3B27AEC7A13614BC041A8FD /* ScreenshotFolderResolver.swift in Sources */,
 				489803F02C1896B658B0DB4B /* ScreenshotLocationManager.swift in Sources */,
@@ -408,36 +438,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				AUTOMATION_APPLE_EVENTS = NO;
 				CODE_SIGN_ENTITLEMENTS = Sources/Pickle.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=macosx*]" = DHF9ZWJF5S;
-				ENABLE_HARDENED_RUNTIME = YES;
-				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
-				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
-				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
-				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
-				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
-				ENABLE_RESOURCE_ACCESS_PHOTO_LIBRARY = NO;
 				INFOPLIST_FILE = Sources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.pickleformac.pickle;
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
-				RUNTIME_EXCEPTION_ALLOW_DYLD_ENVIRONMENT_VARIABLES = NO;
-				RUNTIME_EXCEPTION_ALLOW_JIT = NO;
-				RUNTIME_EXCEPTION_ALLOW_UNSIGNED_EXECUTABLE_MEMORY = NO;
-				RUNTIME_EXCEPTION_DEBUGGING_TOOL = NO;
-				RUNTIME_EXCEPTION_DISABLE_EXECUTABLE_PAGE_PROTECTION = NO;
-				RUNTIME_EXCEPTION_DISABLE_LIBRARY_VALIDATION = NO;
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -446,36 +456,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				AUTOMATION_APPLE_EVENTS = NO;
 				CODE_SIGN_ENTITLEMENTS = Sources/Pickle.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=macosx*]" = DHF9ZWJF5S;
-				ENABLE_HARDENED_RUNTIME = YES;
-				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
-				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
-				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
-				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
-				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
-				ENABLE_RESOURCE_ACCESS_PHOTO_LIBRARY = NO;
 				INFOPLIST_FILE = Sources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.pickleformac.pickle;
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
-				RUNTIME_EXCEPTION_ALLOW_DYLD_ENVIRONMENT_VARIABLES = NO;
-				RUNTIME_EXCEPTION_ALLOW_JIT = NO;
-				RUNTIME_EXCEPTION_ALLOW_UNSIGNED_EXECUTABLE_MEMORY = NO;
-				RUNTIME_EXCEPTION_DEBUGGING_TOOL = NO;
-				RUNTIME_EXCEPTION_DISABLE_EXECUTABLE_PAGE_PROTECTION = NO;
-				RUNTIME_EXCEPTION_DISABLE_LIBRARY_VALIDATION = NO;
 				SDKROOT = macosx;
 			};
 			name = Debug;
